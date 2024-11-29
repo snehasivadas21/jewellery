@@ -1,0 +1,203 @@
+{% load static %}
+<style>
+    .product-card-wrapper {
+        padding: 15px;
+    }
+
+    .product-cart-wrap {
+        background-color: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-cart-wrap:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+    }
+
+    .product-img-action-wrap {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-img {
+        position: relative;
+        padding-top: 100%; /* 1:1 Aspect Ratio */
+    }
+
+    .product-img img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-action-1 {
+        position: absolute;
+        bottom: -50px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        transition: bottom 0.3s ease;
+    }
+
+    .product-cart-wrap:hover .product-action-1 {
+        bottom: 10px;
+    }
+
+    .action-btn {
+        background-color: #fff;
+        color: #333;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .action-btn:hover {
+        background-color: #333;
+        color: #fff;
+    }
+
+    .product-content-wrap {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-category a {
+        color: #777;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .product-content-wrap h2 {
+        font-size: 16px;
+        margin: 10px 0;
+    }
+
+    .product-content-wrap h2 a {
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .product-content-wrap h2 a {
+        color: #06080bc7;
+    }
+
+    .product-discount {
+        font-size: 14px;
+        color: #28a745;
+        margin-top: 5px;
+    }
+
+    .product-price {
+        margin-top: auto;
+    }
+
+    .offer-price {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .old-price {
+        font-size: 14px;
+        text-decoration: line-through;
+        color: #777;
+        margin-left: 5px;
+    }
+</style>
+<div class="row product-grid-4" id="product-list">
+    {% for product in products %}
+        <div class="col-lg-4 col-md-4 col-12 col-sm-6 product-card-wrapper">
+            <div class="product-cart-wrap">
+                <div class="product-img-action-wrap">
+                <a href="{% url 'product-details-user' product.id %}">
+                    <div class="product-img product-img-zoom">
+                        
+                            {% with product.product_variant_set.first as variant %}
+                                {% if variant and variant.product_variant_images_set.first %}
+                                    <img class="default-img" src="{{ variant.product_variant_images_set.first.images.url }}" alt="{{ product.product_name }}">
+                                {% elif product.thumbnail %}
+                                    <img class="default-img" src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}">
+                                {% else %}
+                                    <img class="default-img" src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}">
+                                {% endif %}
+                            {% endwith %}
+                        
+                    </div>
+                    <div class="product-action-1">
+                    </div>
+                    </div>
+                    <div class="product-content-wrap">
+                        <div class="product-category"></div>
+                        <h5>{{ product.product_name }}</a></h5>
+                        <div class="product-price">
+                            {% if product.offer_price < product.price %}
+                                <span class="offer-price">₹{{ product.offer_price }}</span>
+                                <span class="old-price">₹{{ product.price }}</span>
+                            {% else %}
+                                <span class="offer-price">₹{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        {% if product.percentage_discount > 0 %}
+                            <div class="product-discount">
+                                <span>Discount: {{ product.percentage_discount }}%</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </a>    
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <p>No Products Found Yet</p>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if products.paginator.num_pages > 1 %}
+<div class="pagination-wrapper d-flex justify-content-center">
+    <ul class="pagination">
+        {% if products.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo; Previous</a>
+            </li>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+            {% if products.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next &raquo;</a>
+            </li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}

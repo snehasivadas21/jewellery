@@ -1,0 +1,59 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+{% block title %}
+    Add Variant for {{ product.product_name }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Add Variant for {{ product.product_name }}</h1>
+    {% if messages %}
+    <div class="alert alert-danger" role="alert">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Add Variant Form -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="gemstone">Gemstone</label>
+            <select class="form-control" id="gemstone" name="gemstone" required>
+                <option value="diamond">Diamond</option>
+                <option value="ruby">Ruby</option>
+                <option value="sapphire">Sapphire</option>
+                <option value="emerald">Emerald</option>
+            </select>
+        </div>
+        <!-- <div class="form-group">
+            <label for="colour_name">Colour Name</label>
+            <input type="text" class="form-control" id="colour_name" name="colour_name" required>
+        </div> -->
+        <div class="form-group">
+            <label for="variant_stock">Variant Stock</label>
+            <input type="number" class="form-control" id="variant_stock" name="variant_stock" min="0" required>
+            <small class="form-text text-muted">Enter a positive integer for variant stock.</small>
+        </div>
+        <div class="form-group">
+            <label for="variant_status">Variant Status</label>
+            <select class="form-control" id="variant_status" name="variant_status" required>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="weight">Weight</label>
+            <select class="form-control" id="weight" name="weight" required>
+                <option value="Lightweight">Lightweight</option>
+                <option value="Medium weight">Medium weight</option>
+                <option value="Heavyweight">Heavyweight</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Image</button>
+        <a href="{% url 'products-list' %}" class="btn btn-secondary">Cancel</a>
+        
+    </form>
+</div>
+{% endblock %}
