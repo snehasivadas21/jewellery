@@ -14,10 +14,14 @@ class UserRegistrationForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email', 'phone_number', 'password']
 
     def clean_first_name(self):
-        first_name = self.cleaned_data.get('first_name')
+        first_name = self.cleaned_data.get('first_name','').strip()
+    # Regex to allow only letters, numbers, underscores, and periods; no spaces
         if not re.match(r"^[a-zA-Z0-9_.]+$", first_name):
-            raise forms.ValidationError("First name can only contain letters, numbers, underscores, and periods,without spaces.")
+             raise forms.ValidationError(
+            "First name can only contain letters, numbers, underscores, and periods. Spaces are not allowed."
+        )
         return first_name
+
 
     def clean_email(self):
         email =self.cleaned_data.get('email')

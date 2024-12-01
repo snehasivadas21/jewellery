@@ -17,29 +17,8 @@ import re
 
 @admin_required
 def products_list(request):
-    products = Products.objects.all()
-    search_query = request.GET.get('search', '')
-    if search_query:
-        products = products.filter(name__icontains=search_query)
-
-    category_filter = request.GET.get('category', '')
-    if category_filter:
-        products = products.filter(product_category=category_filter)
-
-    sort = request.GET.get('sort', '')
-    if sort == 'price_asc':
-        products = products.order_by('price')
-    elif sort == 'price_desc':
-        products = products.order_by('-price')
-    elif sort == 'rating_desc':
-        products = products.order_by('-ratings')
-
-    context = {
-        'products': products,
-        'total_products': Products.objects.count(),
-        'categories': Products.objects.values_list('product_category__id', flat=True).distinct(),
-    }
-    return render(request, 'admin_side/products_list.html', context)
+    products = Products.objects.all().order_by('-created_at')
+    return render(request, 'admin_side/products_list.html', {'products':products})
 
 def product_detail(request,product_id):
     products=get_object_or_404(Products,id=product_id)
@@ -221,22 +200,23 @@ def add_variant(request, product_id):
     variants = Product_Variant.objects.filter(product=product)
 
     if request.method == 'POST':
-        gemstone = request.POST.get('gemstone')
-        # colour_name = request.POST.get('colour_name')
+        # gemstone = request.POST.get('gemstone')
+        colour_name = request.POST.get('colour_name')
         variant_stock = request.POST.get('variant_stock')
         variant_status = request.POST.get('variant_status')
         weight = request.POST.get('weight')  # Value from frontend
+        colour_code=request.POST.get('colour_code')
 
         # Validate gemstone
-        if not gemstone:
-            messages.error(request, 'Gemstone is required.')
-            return redirect('add-variant', product_id=product_id)
+        # if not gemstone:
+        #     messages.error(request, 'Gemstone is required.')
+        #     return redirect('add-variant', product_id=product_id)
 
         # Validate color name
-        # stripped_colour_name = colour_name.strip()
-        # if not re.match("^[A-Za-z ]+$", stripped_colour_name):
-        #     messages.error(request, 'Color name must contain only letters and spaces.')
-        #     return redirect('add-variant', product_id=product_id)
+        stripped_colour_name = colour_name.strip()
+        if not re.match("^[A-Za-z ]+$", stripped_colour_name):
+            messages.error(request, 'Color name must contain only letters and spaces.')
+            return redirect('add-variant', product_id=product_id)
 
         # Validate weight
         if weight not in ['Lightweight', 'Medium weight', 'Heavyweight']:
@@ -261,8 +241,8 @@ def add_variant(request, product_id):
         # Check for duplicates
         variant_exists = Product_Variant.objects.filter(
             product=product,
-            gemstone=gemstone,
-            # colour_name=stripped_colour_name,
+            # gemstone=gemstone,
+            colour_name=stripped_colour_name,
             weight=weight
         ).exists()
 
@@ -273,11 +253,12 @@ def add_variant(request, product_id):
         # Create variant
         variant = Product_Variant.objects.create(
             product=product,
-            gemstone=gemstone,
-            # colour_name=colour_name,
+            # gemstone=gemstone,
+            colour_name=colour_name,
             weight=weight,
             variant_stock=variant_stock,
             variant_status=variant_status,
+            colour_code=colour_code
         )
 
         messages.success(request, 'Variant added successfully.')
@@ -332,31 +313,37 @@ def edit_variant(request, variant_id):
     variant_images = Product_variant_images.objects.filter(product_variant=variant)
 
     if request.method == 'POST':
-        gemstone = request.POST.get('variant_gemstone')
-        # colour_name = request.POST.get('colour_name')
+        # gemstone = request.POST.get('variant_gemstone')
+        colour_name = request.POST.get('colour_name')
+        colour_code=request.POST.get('colour_code')
         weight = request.POST.get('weight')
         variant_stock = request.POST.get('variant_stock')
         variant_status = request.POST.get('variant_status') == 'on'
 
-        # stripped_colour_name = colour_name.strip() if colour_name else ''
+        stripped_colour_name = colour_name.strip() if colour_name else ''
+        stripped_colour_code=colour_code.strip() if colour_code else ''
         stripped_weight = weight.strip() if weight else ''
 
-        # if not re.match("^[A-Za-z ]+$", stripped_colour_name):
-        #     messages.error(request, 'Color name must contain only letters and spaces.')
-        #     return redirect('edit-variant', variant_id=variant_id)
+        if not re.match("^[A-Za-z ]+$", stripped_colour_name):
+            messages.error(request, 'Color name must contain only letters and spaces.')
+            return redirect('edit-variant', variant_id=variant_id)
 
 
         if not stripped_weight:
             messages.error(request, 'weight  is required.')
             return redirect('edit-variant', variant_id=variant_id)
+        
+        if not stripped_colour_code:
+            messages.error(request,'Color code is required.')
+            return redirect('edit-varient',variant_id=variant_id)
 
-        # if Product_Variant.objects.filter(product=variant.product, colour_name=stripped_colour_name).exclude(id=variant_id).exists():
-        #     messages.error(request, 'A variant with this color name already exists.')
-        #     return redirect('edit-variant', variant_id=variant_id)
-
-        if Product_Variant.objects.filter(product=variant.product, weight=stripped_weight).exclude(id=variant_id).exists():
-            messages.error(request, 'A variant with this weight already exists.')
+        if Product_Variant.objects.filter(product=variant.product, colour_name=stripped_colour_name).exclude(id=variant_id).exists():
+            messages.error(request, 'A variant with this color name already exists.')
             return redirect('edit-variant', variant_id=variant_id)
+
+        # if Product_Variant.objects.filter(product=variant.product, weight=stripped_weight).exclude(id=variant_id).exists():
+        #     messages.error(request, 'A variant with this weight already exists.')
+        #     return redirect('edit-variant', variant_id=variant_id)
 
         try:
             variant_stock = int(variant_stock)
@@ -368,16 +355,21 @@ def edit_variant(request, variant_id):
         except ValidationError as e:
             messages.error(request, str(e))
 
-        # if not stripped_colour_name:
-        #     messages.error(request, 'Color name is required.')
-        #     return redirect('edit-variant', variant_id=variant_id)
+        if not stripped_colour_name:
+            messages.error(request, 'Color name is required.')
+            return redirect('edit-variant', variant_id=variant_id)
+        
+        if not stripped_colour_code:
+            messages.error(request,'Color code is required.')
+            return redirect('edit-variant',variant_id=variant_id)
 
         if not stripped_weight:
             messages.error(request, 'weight code is required.')
             return redirect('edit-variant', variant_id=variant_id)
 
-        variant.gemstone = gemstone
-        # variant.colour_name = stripped_colour_name
+        # variant.gemstone = gemstone
+        variant.colour_code=colour_code
+        variant.colour_name = stripped_colour_name
         variant.weight = stripped_weight
         variant.variant_stock = variant_stock
         variant.variant_status = variant_status
@@ -393,7 +385,7 @@ def edit_variant(request, variant_id):
             messages.success(request, 'Variant updated successfully.')
         except DataError:
             messages.error(request, 'The value for one or more fields is out of range.')
-            return redirect('product:edit-variant', variant_id=variant_id)
+            return redirect('edit-variant', variant_id=variant_id)
 
         return redirect('variant-detail', variant.product.id)
 
@@ -440,7 +432,6 @@ def product_details_user(request, product_id):
 
 def shop_side(request):
     categories = Category.objects.all()
-
     products = Products.objects.filter(is_active=True)
     search_query = request.GET.get('search_query', '')
     selected_categories = request.GET.getlist('category')

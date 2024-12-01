@@ -125,17 +125,24 @@
                                 <div class="detail-gallery">
                                     <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                     <!-- MAIN SLIDES -->
-                                    <div class="product-image-slider" id="product-image-slider">
+                                    <div class="product-image-slider">
                                         {% if variant_images %}
                                             {% for image in variant_images %}
-                                            <img src="{{ image.images.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                                <a href="{{ image.images.url }}" data-lightbox="product-images">
+                                                    <img src="{{ image.images.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                                </a>
                                             {% endfor %}
                                         {% elif product.thumbnail %}
-                                            <img src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            <a href="{{ product.thumbnail.url }}" data-lightbox="product-images">
+                                                <img src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            </a>
                                         {% else %}
-                                            <img src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            <a href="{% static 'images/No_Image-1024.webp' %}" data-lightbox="product-images">
+                                                <img src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            </a>
                                         {% endif %}
                                     </div>
+                                    
                                     <!-- THUMBNAILS -->
                                     <div class="slider-nav-thumbnails pl-15 pr-15" id="thumbnails-slider" style="max-width: 400px; margin: auto;">
                                         {% if variant_images %}
@@ -155,9 +162,6 @@
                                 <div class="detail-info">
                                     <h2 class="title-detail">{{ product.product_name }}</h2>
                                     <div class="product-detail-rating">
-                                        {% comment %} <div class="pro-details-brand">
-                                            <span> Brands: <a href="shop-grid-right.html">{{ product.product_brand}}</a></span>
-                                        </div> {% endcomment %}
                                         <div class="product-rate-cover text-end">
                                             <div class="star-rating-display" data-rating="{{ product.get_average_rating }}">
                                                 {% with rating=product.get_average_rating|default:0 %}
@@ -205,26 +209,22 @@
                                         </ul>
                                     </div>                                    
                                     
-                                    <div class="attr-detail attr-gemstone mb-15" style="display: flex; align-items: center;">
-                                        <strong class="mr-10" style="margin-right: 10px;">Gemstone:</strong>
-                                        <ul class="list-filter gemstone-filter" style="display: flex; list-style: none; padding: 0; margin: 0;">
+                                    <div class="attr-detail attr-color mb-15">
+                                        <strong class="mr-10">Color</strong>
+                                        <ul class="list-filter color-filter">
                                             {% for variant in variants %}
-                                                <li class="list-inline-item {% if selected_variant.id == variant.id %}active{% endif %}" style="margin-right: 10px;">
-                                                    <a href="#" 
-                                                       class="gemstone-select {% if selected_variant.id == variant.id %}selected{% endif %}" 
-                                                       data-variant-id="{{ variant.id }}" 
-                                                       style="text-decoration: none; color: inherit;">
-                                                        <span class="gemstone-name">
-                                                            {% if variant.gemstone %}
-                                                                {{ variant.gemstone }}
-                                                            {% else %}
-                                                                Unknown
-                                                            {% endif %}
-                                                        </span>
-                                                    </a>
-                                                </li>
+                                            <li class="list-inline-item {% if selected_variant.id == variant.id %}active{% endif %}">
+                                                <a href="#" class="color-select {% if selected_variant.id == variant.id %}selected{% endif %}" data-variant-id="{{ variant.id }}" data-image-urls="{% for image in variant.product_variant_images_set.all %}{{ image.images.url }}{% if not forloop.last %},{% endif %}{% endfor %}">
+                                                    <span class="d-inline-block rounded-circle border border-dark position-relative" style="background-color: {{ variant.colour_code }}; width: 25px; height: 25px;">
+                                                        {% if variant.id == selected_variant.id %}
+                                                        <i class="fi-rs-check position-absolute top-0 start-100 translate-middle text-white" style="font-size: 12px; right: 0; top: 0;"></i>
+                                                        {% endif %}
+                                                    </span>
+                                                </a>
+                                            </li>
                                             {% endfor %}
                                         </ul>
+                                       
                                     </div>
                                     
 

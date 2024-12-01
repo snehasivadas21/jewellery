@@ -19,7 +19,7 @@
         <div class="card-body">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="form-group">
+                {% comment %} <div class="form-group">
                     <label for="gemstone">Gemstone</label>
                     <select class="form-control" id="gemstone" name="gemstone" required>
                         <option value="diamond">Diamond</option>
@@ -27,11 +27,15 @@
                         <option value="sapphire">Sapphire</option>
                         <option value="emerald">Emerald</option>
                     </select>
-                </div>
-                <!-- <div class="form-group">
+                </div> {% endcomment %}
+                <div class="form-group">
                     <label for="colour_name">Colour Name</label>
                     <input type="text" class="form-control" id="colour_name" name="colour_name" value="{{ variant.colour_name }}">
-                </div> -->
+                </div>
+                <div class="form-group">
+                    <label for="colour_code">Colour Code</label>
+                    <input type="color" class="form-control square-color-picker" id="colour_code" name="colour_code" value="{{ variant.colour_code }}" required>
+                </div>
                 <div class="form-group">
                     <label for="weight">Weight</label>
                     <select class="form-control" id="weight" name="weight" required>
@@ -115,6 +119,13 @@
 .small-text {
     font-size: 0.8em;
     line-height: 1.2;
+}
+.square-color-picker {
+    width: 40px; /* Set the width of the color picker */
+    height: 40px; /* Set the height of the color picker */
+    padding: 0;
+    margin-bottom: 20px;
+    border: none;
 }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.6/cropper.js"></script>

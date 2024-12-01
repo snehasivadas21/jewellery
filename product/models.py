@@ -50,10 +50,11 @@ class Products(models.Model):
    
 class Product_Variant(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE)
-    gemstone =models.CharField(max_length=10,null=True)
     variant_stock = models.BigIntegerField(null=False, default=0)
     variant_status = models.BooleanField(default=True)
     weight = models.CharField(max_length=20,null=True)
+    colour_name=models.CharField(max_length=20,null=True)
+    colour_code=models.CharField(max_length=10,null=True)
 
 
 class Product_images(models.Model):
