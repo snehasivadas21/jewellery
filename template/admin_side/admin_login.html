@@ -23,12 +23,12 @@
                 <div class="card-body">
                     <h4 class="card-title mb-4">Sign in</h4>
                     {% if messages %}
-                    <div class="messages">
+                      <ul class="alert alert-danger">
                         {% for message in messages %}
-                            <div class="message {{ message.tags }}">{{ message }}</div>
+                             <li>{{ message }}</li>
                         {% endfor %}
-                    </div>
-                   {% endif %}
+                        </ul>
+                    {% endif %}
                    <form method="post" action="{% url 'admin_login' %}">
                     {% csrf_token %}
                     <div class="mb-3">

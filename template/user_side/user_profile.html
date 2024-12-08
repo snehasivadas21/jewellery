@@ -1,0 +1,56 @@
+{% extends 'user_side/base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container my-5">
+    <div class="row g-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle display-1 text-secondary"></i>
+                    </div>
+                    <h5 class="card-title">{{ user.get_full_name }}</h5>
+                    <p class="card-text text-muted">{{ user.email }}</p>
+                    <a href="{% url 'edit-profile' %}" class="btn btn-outline-secondary btn-sm mt-2">Edit Profile</a>
+                    <a href="{% url 'password-change' %}" class="btn btn-outline-secondary btn-sm mt-2">Change Password</a>
+                </div>
+            </div>
+            <div class="list-group mt-4 shadow-sm">
+                <a href="{% url 'user-profile' %}" class="list-group-item list-group-item-action" aria-current="true">
+                    Dashboard
+                </a>
+                <a href="{% url 'order-list' %}" class="list-group-item list-group-item-action">Orders</a>
+                <a href="{% url 'user-address' %}" class="list-group-item list-group-item-action">My Address</a>
+                <a href="{% url 'logout' %}" class="list-group-item list-group-item-action">Log Out</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" value="{{ user.first_name }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" value="{{ user.last_name }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Mobile Number</label>
+                            <input type="tel" class="form-control" value="{{ user.phone_number }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- You can add more sections here, such as order history, etc. -->
+        </div>
+    </div>
+</main>
+{% endblock %}

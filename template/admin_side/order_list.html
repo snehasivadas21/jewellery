@@ -1,0 +1,107 @@
+{% extends "admin_side/base.html" %}
+{% load static %}
+{% block title %} <title>Order</title>{% endblock title %}
+{% block content %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order List</h2>
+        </div>
+
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form method="get" action="{% url 'list-order' %}">
+                        <input type="text" name="search" value="{{ search_query }}" placeholder="Search..." class="form-control">
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="Show all" {% if status_filter == 'Show all' %}selected{% endif %}>Show all</option>
+                        {% for status, display in ORDER_STATUS_CHOICES %}
+                        <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select name="items_per_page" class="form-select" onchange="this.form.submit()">
+                        <option value="20" {% if items_per_page == '20' %}selected{% endif %}>Show 20</option>
+                        <option value="30" {% if items_per_page == '30' %}selected{% endif %}>Show 30</option>
+                        <option value="40" {% if items_per_page == '40' %}selected{% endif %}>Show 40</option>
+                    </select>
+                </div>
+                <button type="submit" style="display: none;"></button>
+                </form>
+            </div>
+        </header>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Order ID</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td><b>{{ order.address.name }}</b></td>
+                            <td>{{ order.order_id }}</td>
+                            <td>₹{{ order.total_amount }}</td>
+                            <td><span class="badge rounded-pill alert-danger">{{ order.order_status }}</span></td>
+                            <td>{{ order.date }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'admin-orders-details' order.id %}" class="btn btn-md rounded font-sm">Detail</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                {% if orders.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ orders.previous_page_number }}&search={{ search_query }}&status={{ status_filter }}&items_per_page={{ items_per_page }}"><i class="material-icons md-chevron_left"></i></a>
+                </li>
+                {% endif %}
+                {% for num in orders.paginator.page_range %}
+                <li class="page-item {% if orders.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&search={{ search_query }}&status={{ status_filter }}&items_per_page={{ items_per_page }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if orders.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ orders.next_page_number }}&search={{ search_query }}&status={{ status_filter }}&items_per_page={{ items_per_page }}"><i class="material-icons md-chevron_right"></i></a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</section>
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear())
+            </script> ©, ETERNAGEM.
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">
+                All rights reserved
+            </div>
+        </div>
+    </div>
+</footer>
+{% endblock %}

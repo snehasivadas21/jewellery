@@ -1,0 +1,94 @@
+{% extends 'user_side/base.html' %}
+{% load static %}
+{% block content %}
+<main class="container my-5">
+    <div class="row g-5">
+        <div class="col-md-8 mx-auto">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">{{ is_edit|yesno:"Edit Address,Add Address" }}</h4>
+                    <form method="post" action="{% if is_edit %}{% url 'edit-address' address_id %}{% else %}{% url 'useradd-address' %}{% endif %}">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="id_name" class="form-label">Name</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">{{ form.name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="id_house_name" class="form-label">House Name</label>
+                                {{ form.house_name }}
+                                {% if form.house_name.errors %}
+                                    <div class="text-danger">{{ form.house_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="id_street_name" class="form-label">Street Name</label>
+                                {{ form.street_name }}
+                                {% if form.street_name.errors %}
+                                    <div class="text-danger">{{ form.street_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="id_pin_number" class="form-label">Pin Number</label>
+                                {{ form.pin_number }}
+                                {% if form.pin_number.errors %}
+                                    <div class="text-danger">{{ form.pin_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="id_district" class="form-label">District</label>
+                                {{ form.district }}
+                                {% if form.district.errors %}
+                                    <div class="text-danger">{{ form.district.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="id_state" class="form-label">State</label>
+                                {{ form.state }}
+                                {% if form.state.errors %}
+                                    <div class="text-danger">{{ form.state.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="id_country" class="form-label">Country</label>
+                                {{ form.country }}
+                                {% if form.country.errors %}
+                                    <div class="text-danger">{{ form.country.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="id_phone_number" class="form-label">Phone Number</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="text-danger">{{ form.phone_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    {{ form.status }}
+                                    <label for="id_status" class="form-check-label">Set as default</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                {{ is_edit|yesno:"Update Address,Add Address" }}
+                            </button>
+                        </div>
+                    </form>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mt-3">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -16,13 +16,13 @@
         color: #f5c518; /* Gold color for filled stars */
     }
     .comment-form .form-group button.button-contactForm {
-        background-color: #007bff; /* Your preferred button color */
-        border-color: #007bff;
+        background-color: black; /* Your preferred button color */
+        border-color:black;
     }
     
     .comment-form .form-group button.button-contactForm:hover {
-        background-color: #0056b3; /* Button color on hover */
-        border-color: #0056b3;
+        background-color:black; /* Button color on hover */
+        border-color: black;
     }
 
     .no-bullet-list {
@@ -91,13 +91,17 @@
         font-weight: bold;
         color: red; /* Red color for out-of-stock items */
     }
-    
-    
+
+    .button-add-to-cart,
+    .button-go-to-cart {
+        border-radius: 8px;
+        padding: 5px 20px;
+    }
     
     
 </style>
 <main class="main">
-    <!-- Breadcrumb Section Begin -->
+<!-- Breadcrumb Section Begin -->
  <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
@@ -125,24 +129,17 @@
                                 <div class="detail-gallery">
                                     <span class="zoom-icon"><i class="fi-rs-search"></i></span>
                                     <!-- MAIN SLIDES -->
-                                    <div class="product-image-slider">
+                                    <div class="product-image-slider" id="product-image-slider">
                                         {% if variant_images %}
                                             {% for image in variant_images %}
-                                                <a href="{{ image.images.url }}" data-lightbox="product-images">
-                                                    <img src="{{ image.images.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
-                                                </a>
+                                            <img src="{{ image.images.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
                                             {% endfor %}
                                         {% elif product.thumbnail %}
-                                            <a href="{{ product.thumbnail.url }}" data-lightbox="product-images">
-                                                <img src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
-                                            </a>
+                                            <img src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
                                         {% else %}
-                                            <a href="{% static 'images/No_Image-1024.webp' %}" data-lightbox="product-images">
-                                                <img src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}" class="main-image img-fluid">
-                                            </a>
+                                            <img src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}" class="main-image img-fluid">
                                         {% endif %}
                                     </div>
-                                    
                                     <!-- THUMBNAILS -->
                                     <div class="slider-nav-thumbnails pl-15 pr-15" id="thumbnails-slider" style="max-width: 400px; margin: auto;">
                                         {% if variant_images %}
@@ -155,14 +152,14 @@
                                             <div class="thumbnail-item"><img src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}" class="thumbnail-image img-thumbnail"></div>
                                         {% endif %}
                                     </div>
-                                </div>
+                                </div>          
                                 <!-- End Gallery -->
                             </div>
                             <div class="col-md-6 col-sm-12 col-xs-12">
                                 <div class="detail-info">
                                     <h2 class="title-detail">{{ product.product_name }}</h2>
                                     <div class="product-detail-rating">
-                                        <div class="product-rate-cover text-end">
+                                        <div class="product-rate-cover text-end">   
                                             <div class="star-rating-display" data-rating="{{ product.get_average_rating }}">
                                                 {% with rating=product.get_average_rating|default:0 %}
                                                     <span class="star {% if rating >= 1 %}filled{% endif %}">&#9733;</span>
@@ -257,9 +254,9 @@
                                         </ul>
                                     </div>
                                     
-                                    {% comment %} <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                    <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                     <div class="detail-extralink">
-                                        <div class="detail-qty border radius" style="display: none;">
+                                         <div class="detail-qty border radius" style="display: block;">
                                             <a href="#" class="qty-down" onclick="updateQty(this, -1)"><i class="fi-rs-angle-small-down"></i></a>
                                             <span class="qty-val">1</span>
                                             <a href="#" class="qty-up" onclick="
@@ -269,145 +266,29 @@
                                                     updateQty(this, 1);
                                                 }
                                             "><i class="fi-rs-angle-small-up"></i></a>
-                                        </div> {% endcomment %}
-                                        {% comment %} <div class="product-extra-link2">
+                                        </div> 
+                                        <div class="product-extra-link2">
                                             {% if user.is_authenticated %}
                                                 <!-- Add to Cart Button -->
-                                                <button type="button" class="button button-add-to-cart">Add to Cart</button>
+                                                <button type="button" class="button button-add-to-cart" style="background-color: #28a745; color: white; ">Add to Cart</button>
 
                                                 <!-- Go to Cart Button (Initially hidden) -->
-                                                <button id="go-to-cart" type="button" class="button button-go-to-cart" style="display:none;">Go to Cart</button>
+                                                <button id="go-to-cart" type="button" class="button button-go-to-cart" style="background-color: #28a745; color: white;" style="display:none;" onclick="window.location.href='{% url 'cart-view' %}'">Go to Cart</button>
 
                                                  <!-- Wishlist Button -->
-                                                <a href="#" class="action-btn hover-up wishlist-toggle" data-url="{% url 'userpanel:toggle_wishlist' %}">
+                                                <a href="#" class="action-btn hover-up wishlist-toggle" data-url="#">
                                                     <i class="fi-rs-heart" id="wishlistIcon"></i>
                                                 </a>
                                             {% else %}
-                                                <button type="button" class="button button-add-to-cart" id="login-to-add">Add to Cart</button>
+                                                <button type="button" class="button button-add-to-cart " style="background-color: #28a745; color: white; " id="login-to-add">Add to Cart</button>
                                             {% endif %}
-                                        </div> {% endcomment %}
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- Detail Info -->
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-lg-10 m-auto entry-main-content">
-
-                                {% comment %} <h3 class="section-title style-1 mb-30 mt-30">Reviews ({{ reviews.count }})</h3> {% endcomment %}
-
-                                <!-- Comment Form -->
-                                {% comment %} <div class="comment-form">
-                                    <h4 class="mb-15">Add a review</h4>
-
-                                    {% if has_purchased %}
-                                        <div class="row justify-content-center">
-                                            <div class="col-lg-6 col-md-8">
-                                                <form method="post" class="form-contact comment_form" action="{% url 'add-review' product.id %}" id="commentForm">
-                                                    {% csrf_token %}
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <div class="form-group">
-                                                                <textarea class="form-control w-100" name="comment" id="comment" cols="30" rows="4" placeholder="Write Comment" required></textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 text-center">
-                                                            <div class="star-rating" id="star-rating" style="display: inline-block;">
-                                                                <span class="star" data-value="1">&#9733;</span>
-                                                                <span class="star" data-value="2">&#9733;</span>
-                                                                <span class="star" data-value="3">&#9733;</span>
-                                                                <span class="star" data-value="4">&#9733;</span>
-                                                                <span class="star" data-value="5">&#9733;</span>
-                                                            </div>
-                                                            <input type="hidden" id="rating" name="rating" value="0" required>
-                                                            <p class="text-muted mt-2">Please give a rating before submitting your review.</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group text-center">
-                                                        <button type="submit" class="button button-contactForm">Submit Review</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        <p class="text-muted">You must purchase this product before you can leave a review.</p>
-                                    {% endif %}
-                                </div> {% endcomment %}
-
-                                                                
-                                <!-- Comments Area -->
-                                {% comment %} <div class="comments-area style-2">
-                                    <div class="row">
-                                        <div class="col-lg-8">
-                                            {% for review in reviews %}
-                                            <div class="comment-list mb-4">
-                                                <div class="single-comment p-3 bg-light rounded shadow-sm">
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <div class="thumb text-center mr-3">
-                                                            <img src="{% static 'user_side/assets/imgs/page/avatar-6.jpg' %}" alt="" class="img-thumbnail rounded-circle" style="width: 60px;">
-                                                        </div>
-                                                        <div>
-                                                            <h6 class="mb-0"><a href="#" class="text-dark">{{ review.user.first_name }}</a></h6>
-                                                            <p class="mb-0 text-muted font-italic">{{ review.user.email }}</p>
-                                                            <p class="font-xxs text-muted">Member since {{ review.user.date_joined|date:"Y" }}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="desc">
-                                                        <!-- Star Rating Display -->
-                                                        <div class="star-rating-display mb-2">
-                                                            {% for star in "★★★★★" %}
-                                                                <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">&#9733;</span>
-                                                            {% endfor %}
-                                                        </div>
-                                                        <p class="mb-2">{{ review.comment }}</p>
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <p class="font-xs text-muted">{{ review.created_at|date:"F j, Y" }}</p>
-                                                            
-                                                            {% if request.user == review.user %}
-                                                            <form action="{% url 'product:delete-review' review.id %}" method="post" class="mb-0">
-                                                                {% csrf_token %}
-                                                                <button class="btn btn-danger btn-sm" type="submit" title="Delete Review">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 24 24">
-                                                                        <path d="M3 6h18v2H3V6zm2 3v10c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V9H5zm6 0h2v10h-2V9zm-4 0h2v10H7V9zm8 0h2v10h-2V9zM16 4l-1-1H9L8 4H5v2h14V4h-3z"/>
-                                                                    </svg>
-                                                                </button>
-                                                            </form>
-                                                            {% endif %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                        <div class="col-lg-4">
-                                            <h4 class="mb-30">Customer reviews</h4>
-                                        
-                                            <!-- Star Rating Display -->
-                                            <div class="d-flex mb-3 align-items-center">
-                                                <div class="star-rating-display">
-                                                    {% for star in "★★★★★" %}
-                                                        <span class="star {% if forloop.counter <= product.get_average_rating %}filled{% endif %}">&#9733;</span>
-                                                    {% endfor %}
-                                                </div>
-                                                <span class="ml-2 text-muted">{{ product.get_average_rating|floatformat:1 }}/5</span>
-                                            </div>
-                                        
-                                            <!-- Progress Bars for Star Ratings -->
-                                            {% for star, percentage in star_ratings.items %}
-                                            <div class="progress mb-3" style="height: 15px;">
-                                                <span class="mr-2">{{ star }} star</span>
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ percentage }}%;" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100">{{ percentage }}%</div>
-                                            </div>
-                                            {% endfor %}
-                                        
-                                            <a href="#" class="font-xs text-muted">How are ratings calculated?</a>
-                                        </div>
-                                    </div>
-                                    
-                                </div> {% endcomment %}
-
-                        </div>
                         <div class="row mt-60">
                             <div class="col-12">
                                 <h3 class="section-title style-1 mb-30">Related products</h3>
@@ -433,9 +314,6 @@
                                                     </div>
                                                 </div>
                                                 <div class="product-content-wrap">
-                                                    {% comment %} <div class="product-category">
-                                                        <a href="#">{{ product.product_brand.brand_name }}</a>
-                                                    </div> {% endcomment %}
                                                     <h5><a href="{% url 'product-details-user' product.id %}">{{ product.product_name }}</a></h5>
                                                     <div class="product-price">
                                                         {% if product.offer_price < product.price %}
@@ -466,9 +344,11 @@
     </section>
 </main>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Include jQuery and Slick Slider JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 <script>
-    {% comment %} $(document).ready(function() {
+    $(document).ready(function() {
         // Function to check if the item is already in the cart
         function updateButtonStatus() {
             var selectedColor = $('.color-select.selected').data('variant-id');
@@ -478,7 +358,7 @@
             }
     
             $.ajax({
-                //url: "{% url 'cart:button' %}", // Adjust this URL to your actual endpoint 
+                url: "{% url 'check_cart_status' %}", // Adjust this URL to your actual endpoint 
                 method: "GET",
                 data: {
                     'variant_id': selectedColor
@@ -497,7 +377,6 @@
                 }
             });
         }
-     {% endcomment %}
         $.ajaxSetup({
             beforeSend: function(xhr, settings) {
                 if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type) && !this.crossDomain) {
@@ -522,6 +401,24 @@
             if (qty < 5) {
                 qtyVal.text(qty + 1);
             }
+        });
+
+        $(document).ready(function(){
+            $('#product-image-slider').slick({
+                slidesToShow: 1,
+                slidesToScroll: 1,
+                arrows: false,
+                fade: true,
+                asNavFor: '#thumbnails-slider'
+            });
+            $('#thumbnails-slider').slick({
+                slidesToShow: 3,
+                slidesToScroll: 1,
+                asNavFor: '#product-image-slider',
+                dots: false,
+                centerMode: true,
+                focusOnSelect: true
+            });
         });
     
         $('.color-select').on('click', function(e) {
@@ -615,6 +512,7 @@
             }
     
             $.ajax({
+                url:"{% url 'add-to-cart' %}",
                 method: "POST",
                 data: {
                     'variant_id': selectedColor,
@@ -884,7 +782,4 @@
     });
     
 </script>
-
-
-
 {% endblock %}

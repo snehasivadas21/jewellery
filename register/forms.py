@@ -14,13 +14,55 @@ class UserRegistrationForm(forms.ModelForm):
         fields = ['first_name', 'last_name', 'email', 'phone_number', 'password']
 
     def clean_first_name(self):
-        first_name = self.cleaned_data.get('first_name','').strip()
-    # Regex to allow only letters, numbers, underscores, and periods; no spaces
+        first_name = self.cleaned_data.get('first_name', '').strip()
+
+        # Check length constraints
+        if len(first_name) < 2 or len(first_name) > 50:
+            raise forms.ValidationError("First name must be between 2 and 50 characters.")
+
+        # Check for valid characters
         if not re.match(r"^[a-zA-Z0-9_.]+$", first_name):
-             raise forms.ValidationError(
-            "First name can only contain letters, numbers, underscores, and periods. Spaces are not allowed."
-        )
-        return first_name
+            raise forms.ValidationError(
+                "First name can only contain letters, numbers, underscores, and periods. Spaces are not allowed."
+            )
+
+        # Prevent numeric-only names
+        if first_name.isdigit():
+            raise forms.ValidationError("First name cannot be numeric-only.")
+
+        # Disallow leading/trailing underscores or periods
+        if first_name.startswith(('_', '.')) or first_name.endswith(('_', '.')):
+            raise forms.ValidationError("First name cannot start or end with an underscore or period.")
+
+        # Prevent consecutive underscores or periods
+        if "__" in first_name or ".." in first_name or "._" in first_name or "._" in first_name:
+            raise forms.ValidationError("First name cannot contain consecutive underscores or periods.")
+
+        # Normalize casing
+        return first_name.title()  # Capitalizes the first letter of each word
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name', '').strip()
+
+        # Apply the same validation as for first name
+        if len(last_name) < 2 or len(last_name) > 50:
+            raise forms.ValidationError("Last name must be between 2 and 50 characters.")
+
+        if not re.match(r"^[a-zA-Z0-9_.]+$", last_name):
+            raise forms.ValidationError(
+                "Last name can only contain letters, numbers, underscores, and periods. Spaces are not allowed."
+            )
+
+        if last_name.isdigit():
+            raise forms.ValidationError("Last name cannot be numeric-only.")
+
+        if last_name.startswith(('_', '.')) or last_name.endswith(('_', '.')):
+            raise forms.ValidationError("Last name cannot start or end with an underscore or period.")
+
+        if "__" in last_name or ".." in last_name or "._" in last_name or "._" in last_name:
+            raise forms.ValidationError("Last name cannot contain consecutive underscores or periods.")
+
+        return last_name.title()  # Normalize casing
 
 
     def clean_email(self):
@@ -52,6 +94,27 @@ class UserRegistrationForm(forms.ModelForm):
         if password != confirm_password:
             raise forms.ValidationError("Passwords do not match")
         return confirm_password
+    
+    def clean_phone_number(self):
+       phone_number = self.cleaned_data.get('phone_number')
+
+    # Ensure phone number is not empty
+       if not phone_number:
+        raise ValidationError("Phone number is required.")
+    
+    # Remove spaces and special characters for validation
+       cleaned_phone_number = ''.join(filter(str.isdigit, phone_number))
+    
+    # Length validation
+       if len(cleaned_phone_number) != 11:
+        raise ValidationError("Phone number must be exactly 10 digits.")
+    
+    # Ensure phone number is not all zeros
+       if cleaned_phone_number == "0000000000":
+        raise ValidationError("Phone number cannot be all zeros.")
+    
+       return cleaned_phone_number
+
 
 class EmailAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))

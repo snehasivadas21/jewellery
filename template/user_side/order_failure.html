@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Failure</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+</head>
+<body>
+    <div class="container my-5">
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Order Failed</h4>
+            <p>We're sorry, but your order could not be processed at this time.</p>
+            <hr>
+            <p class="mb-0">Please try again later or contact our support team if the issue persists.</p>
+        </div>
+        <div class="text-center">
+            <a href="{% url 'checkout' %}" class="btn btn-primary">Go to Checkout</a>
+        </div>
+    </div>
+</body>
+</html>

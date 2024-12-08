@@ -25,6 +25,9 @@ urlpatterns = [
     path('admin1/',include('customadmin.urls')),
     path('category/',include('category.urls')),
     path('product/',include('product.urls')),
+    path('userprofile/',include('userprofile.urls')),
+    path('order/',include('order.urls')),
+    path('cart/',include('cart.urls')),
     path('auth/', include('social_django.urls', namespace='social')),
 ]
 

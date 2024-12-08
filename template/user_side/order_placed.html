@@ -1,0 +1,112 @@
+{% extends 'user_side/base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="container my-5 text-center">
+    <div class="order-success-container">
+        <h1 class="display-4 mb-4">🎉 Order Placed Successfully! 🎉</h1>
+
+        {% if messages %}
+        <div class="alert alert-success" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="card mx-auto" style="max-width: 600px;">
+            <div class="card-body">
+                <h5 class="card-title">Order Details</h5>
+                <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+                <p><strong>Total Amount:</strong> ₹{{ order.total_amount }}</p>
+                <p><strong>Payment Method:</strong> {{ order.payment_option }}</p>
+                <p><strong>Estimated Delivery:</strong> {{ order.estimated_delivery_date }}</p>
+            </div>
+        </div>
+
+        <a href="{% url 'shop-side' %}" class="btn btn-primary mt-5">Continue Shopping</a>
+        <a href="{% url 'order-list' %}" class="btn btn-primary mt-5">View Orders</a>
+    </div>
+</main>
+
+<!-- Confetti JS Library -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Continuous confetti effect
+        setInterval(() => {
+            confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 }
+            });
+            confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 }
+            });
+        }, 200);
+
+        {% if messages %}
+        const messages = [
+            {% for message in messages %}
+                "{{ message }}",
+            {% endfor %}
+        ];
+        messages.forEach(message => {
+            Swal.fire({
+                toast: true,
+                position: 'top-right',
+                icon: 'success',
+                title: message,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+        {% endif %}
+    });
+</script>
+
+<style>
+    .order-success-container {
+        padding: 20px;
+        border-radius: 10px;
+        background: #f9f9f9;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    h1.display-4 {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .card {
+        margin-top: 20px;
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-body {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}

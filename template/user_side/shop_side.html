@@ -103,8 +103,8 @@
         transition: color 0.3s ease;
     }
 
-    .product-content-wrap h5 a:hover {
-        color: #007bff;
+    .product-content-wrap h5 a {
+        color:black;
     }
 
     .product-rate-cover {
@@ -188,32 +188,20 @@
                             </div>
 
                             <!-- Sort By Widget -->
-                            {% comment %} <div class="widget-category mb-30">
+                            <div class="widget-category mb-30">
                                 <h5 class="section-title style-1 mb-30 wow fadeIn animated">Sort by</h5>
                                 <select name="sort" id="sort-select" class="form-control">
-                                    <option value="featured" {% if current_sort == 'featured' %}selected{% endif %}>Featured</option>
+                                    <option value="popularity" {% if current_sort == 'popularity'%}selected{% endif %}>Popularity</option>
                                     <option value="price_low_high" {% if current_sort == 'price_low_high' %}selected{% endif %}>Price: Low to High</option>
                                     <option value="price_high_low" {% if current_sort == 'price_high_low' %}selected{% endif %}>Price: High to Low</option>
                                     <option value="avg_rating" {% if current_sort == 'avg_rating' %}selected{% endif %}>Average Rating</option>
+                                    <option value="featured" {% if current_sort == 'featured' %}selected{% endif %}>Featured</option>
                                     <option value="new_arrivals" {% if current_sort == 'new_arrivals' %}selected{% endif %}>New Arrivals</option>
                                     <option value="name_az" {% if current_sort == 'name_az' %}selected{% endif %}>Name: A to Z</option>
                                     <option value="name_za" {% if current_sort == 'name_za' %}selected{% endif %}>Name: Z to A</option>
                                     <option value="inventory" {% if current_sort == 'inventory' %}selected{% endif %}>Inventory</option>
                                 </select>
-                            </div> {% endcomment %}
-
-                            <!-- Price Range Widget -->
-                            {% comment %} <div class="widget-category mb-30">
-                                <h5 class="section-title style-1 mb-30 wow fadeIn animated">Price Range</h5>
-                                <div class="form-group">
-                                    <label for="min_price">Min Price:</label>
-                                    <input type="number" class="form-control filter-input" id="min_price" name="min_price" value="{{ min_price }}">
-                                </div>
-                                <div class="form-group">
-                                    <label for="max_price">Max Price:</label>
-                                    <input type="number" class="form-control filter-input" id="max_price" name="max_price" value="{{ max_price }}">
-                                </div>
-                            </div> {% endcomment %}
+                            </div>
                         </form>
                     </div>
 
@@ -234,6 +222,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        //product filtering and sorting
         $(document).ready(function() {
             var isRequestInProgress = false; // Flag to track request status
     

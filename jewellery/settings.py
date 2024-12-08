@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'customadmin',
     'category',
     'product',
+    'userprofile',
+    'order',
+    'cart',
 ]
 
 MIDDLEWARE = [
@@ -60,6 +63,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'customadmin.middleware.ActiveUserMiddleware',  
+    'customadmin.middleware.SocialAuthExceptionMiddleware',  
+    'customadmin.middleware.Custom404Middleware',
 ]
 
 ROOT_URLCONF = 'jewellery.urls'
@@ -179,7 +185,8 @@ SOCIAL_AUTH_PIPELINE = (
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.google.GoogleOAuth2',  # For Google login
     'django.contrib.auth.backends.ModelBackend', # Default Django auth
-    # 'register.backends.GoogleAuthBackend' ,
+    'register.backends.GoogleAuthBackend' ,
+    'register.backends.EmailBackend', 
 ]
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
@@ -188,7 +195,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET =config('GOOGLE_CLIENT_SECRET')
 
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-    'openid',
     'profile',
     'email'
 ]
@@ -199,26 +205,30 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_EXTRA_DATA = [
 ]
 
 LOGIN_URL = 'login/'
-LOGIN_REDIRECT_URL = 'index/'
+LOGOUT_URL='logout/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = 'login/'
+LOGOUT_REDIRECT_URL = '/'
 
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
         },
     },
     'loggers': {
-        'social_django': {
-            'handlers': ['console'],
+        'django': {
+            'handlers': ['file'],
             'level': 'DEBUG',
+            'propagate': True,
         },
     },
 }
+
 
 
 

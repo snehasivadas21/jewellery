@@ -1,0 +1,158 @@
+{% extends 'user_side/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .wishlist-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+    }
+    .wishlist-item img {
+        width: 60px;
+        margin-right: 15px;
+    }
+    .wishlist-item .product-info {
+        flex-grow: 1;
+    }
+    .wishlist-item h5 {
+        margin: 0;
+        color: #0066b2;
+    }
+    .wishlist-item .rating {
+        color: #ffd700;
+    }
+    .wishlist-item p {
+        margin: 2px 0;
+    }
+    .add-to-cart {
+        background-color: #000;
+        color: #fff;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .remove-icon {
+        color: #999;
+        font-size: 18px;
+        margin-left: 15px;
+        cursor: pointer;
+    }
+</style>
+<div style="height:500px;">
+    <div style="max-width: 1000px; margin: 0 auto; margin-top:50px; margin-bottom:30px;">
+        <h4 style="padding-bottom:20px;">
+            <span style="font-size: 24px;">♥️</span> My Wishlist
+        </h4>
+        {% if wishlists %}
+        {% for wishlist in wishlists %}
+        <div class="wishlist-item">
+        <a href="{% url 'product-detail-page' wishlist.variant.product.id %}">
+            {% with wishlist.variant.product_variant_images_set.all.first as first_image %}
+            {% if first_image %}
+                <img src="{{ first_image.images.url }}" alt="{{ wishlist.variant.product.product_name }}">
+            {% else %}
+                <img src="{{ wishlist.variant.product.thumbnail.url }}" alt="{{ wishlist.variant.product.product_name }}">
+            {% endif %}
+            {% endwith %}
+            
+            <div class="product-info">
+                <h5 style="padding-bottom:5px;">{{ wishlist.variant.product.product_brand }}</h5>
+                <h4><a href="">{{ wishlist.variant.product.product_name }}</a></h4>
+                <p>Size: {{ wishlist.variant.size }}</p>
+                <p>Category: {{ wishlist.variant.product.product_category }}</p>
+                <p>Price: ₹ {{ wishlist.variant.product.offer_price }}</p>
+            </div>
+        </a>
+        <a href="#" class="btn btn-sm btn-outline-danger remove-item ms-3"
+            data-url="{% url 'remove-wishlist' %}" 
+            data-wishlist-id="{{ wishlist.id }}">Remove
+        </a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h4>
+            <span style="font-size: 24px;"></span> No Items Found
+        </h4>
+        {% endif %}
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.9/dist/sweetalert2.min.css">
+
+<script>
+    $(document).ready(function() {
+        $('.remove-item').click(function(event) {
+            event.preventDefault();
+            var url = $(this).data('url');
+            var wishlistId = $(this).data('wishlist-id');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: {
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                            'wishlist_id': wishlistId
+                        },
+                        success: function(response) {
+                            // Redirect to the wishlist page after successful removal
+                            window.location.href = "{% url 'wishlist' %}";
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire(
+                                'Error!',
+                                'There was an error removing the item from the wishlist.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        {% if messages %}
+            const messages = [
+                {% for message in messages %}
+                    {
+                        level: "{{ message.tags }}",
+                        text: "{{ message }}"
+                    },
+                {% endfor %}
+            ];
+            messages.forEach(message => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-right',
+                    icon: message.level === 'success' ? 'success' : 'error',
+                    title: message.text,
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        {% endif %}
+    });
+</script>
+{% endblock %}

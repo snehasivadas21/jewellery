@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    {% block title %}Aadyaa{% endblock title %}
+    {% block title %}ETERNAGEM{% endblock title %}
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -52,18 +52,13 @@
                         <span class="text">Category</span>
                     </a>
                 </li>
-                {% comment %} <li class="menu-item">
-                    <a class="menu-link" href="#"> <i class="icon material-icons md-verified"></i>
-                        <span class="text">Brand</span>
-                    </a>
-                </li> {% endcomment %}
                 <li class="menu-item">
                     <a class="menu-link" href="{% url 'products-list' %}"><i class="icon material-icons md-shopping_bag"></i>
                         <span class="text">Product</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a class="menu-link" href="#"> <i class="icon material-icons md-receipt_long"></i>
+                    <a class="menu-link" href="{% url 'list-order' %}"> <i class="icon material-icons md-receipt_long"></i>
                         <span class="text">Order</span>
                     </a>
                 </li>

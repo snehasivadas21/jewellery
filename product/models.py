@@ -37,7 +37,7 @@ class Products(models.Model):
         return star_ratings
     
     def user_has_purchased(self, user):
-        OrderSub = apps.get_model('orders', 'OrderSub')  
+        OrderSub = apps.get_model('order', 'OrderSub')  
         return OrderSub.objects.filter(
             variant__product=self,
             user=user,

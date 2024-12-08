@@ -25,6 +25,11 @@ def admin_login(request):
             else:
                 messages.error(request,'you are not authorized to access this page.')
                 return redirect('admin_login')
+        else:
+            # If authentication fails, display an error message
+            messages.error(request, 'Invalid email or password.')
+            return redirect('admin_login')  # Redirect back to the login page
+
     return render(request,'admin_side/admin_login.html')
 
 @admin_required

@@ -38,10 +38,6 @@
                                 <th scope="row">Category</th>
                                 <td>{% if products.product_category %}{{ products.product_category.category_name }}{% else %}No category{% endif %}</td>
                             </tr>
-                            {% comment %} <tr>
-                                <th scope="row">Brand</th>
-                                <td>{% if products.product_brand %}{{ products.product_brand.brand_name }}{% else %}No brand{% endif %}</td>
-                            </tr> {% endcomment %}
                             <tr>
                                 <th scope="row">Price</th>
                                 <td>₹{{ products.price }}</td>

@@ -1,17 +1,18 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import Products,Category,Product_images,Product_Variant,Product_variant_images,Review
+from .models import Products,Category,Product_images,Product_Variant,Product_variant_images
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch,Avg,Count,Sum
 from django.template.loader import render_to_string
 from django.http import JsonResponse,HttpResponse
 from django.core.exceptions import ValidationError
-from django.db.models.functions import Lower
+from django.db.models.functions import Lower,Coalesce
 from utils.decorators import admin_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db import DataError
 from decimal import Decimal,InvalidOperation
+from userprofile.models import Wishlist
 import re
 
 
@@ -200,17 +201,11 @@ def add_variant(request, product_id):
     variants = Product_Variant.objects.filter(product=product)
 
     if request.method == 'POST':
-        # gemstone = request.POST.get('gemstone')
         colour_name = request.POST.get('colour_name')
         variant_stock = request.POST.get('variant_stock')
         variant_status = request.POST.get('variant_status')
         weight = request.POST.get('weight')  # Value from frontend
         colour_code=request.POST.get('colour_code')
-
-        # Validate gemstone
-        # if not gemstone:
-        #     messages.error(request, 'Gemstone is required.')
-        #     return redirect('add-variant', product_id=product_id)
 
         # Validate color name
         stripped_colour_name = colour_name.strip()
@@ -241,19 +236,17 @@ def add_variant(request, product_id):
         # Check for duplicates
         variant_exists = Product_Variant.objects.filter(
             product=product,
-            # gemstone=gemstone,
             colour_name=stripped_colour_name,
             weight=weight
         ).exists()
 
         if variant_exists:
-            messages.error(request, 'A variant with this gemstone and weight already exists.')
+            messages.error(request, 'A variant with this color and weight already exists.')
             return redirect('add-variant', product_id=product_id)
 
         # Create variant
         variant = Product_Variant.objects.create(
             product=product,
-            # gemstone=gemstone,
             colour_name=colour_name,
             weight=weight,
             variant_stock=variant_stock,
@@ -405,34 +398,51 @@ def product_details_user(request, product_id):
 
     # related_products = Products.objects.filter(
     #     product_category=product.product_category
-    # ).exclude(id=product.id)[:4]
+    # ).exclude(id=product.id)[:3]
 
     related_products = Products.objects.exclude(id=product.id)[:3]
-
+    
+    has_purchased = False 
+    if request.user.is_authenticated:
+        has_purchased = product.user_has_purchased(request.user) 
 
     selected_variant = variants.first()
     variant_images = Product_variant_images.objects.none()
     if selected_variant:
         variant_images = selected_variant.product_variant_images_set.all()
 
+    if selected_variant:
+        variants = list(variants)
+        variants.remove(selected_variant)
+        variants.insert(0, selected_variant)
+
+    for variant in variants:
+        variant.image_urls = [image.images.url for image in variant.product_variant_images_set.all()[:5]]    
+
+    user_wishlist = []
+    if request.user.is_authenticated:
+        user_wishlist = Wishlist.objects.filter(user=request.user).values_list('variant_id', flat=True)
+
+    # Ensure at least 3 images for sub-pictures
+    # while len(variant_images) < 3:
+    #     variant_images = list(variant_images) + [None]  # Add placeholders if not enough images
+
     context = {
         'product': product,
         'variants': variants,
         'selected_variant': selected_variant,
         'variant_images': variant_images,
+        'user_wishlist':user_wishlist,
+        'has_purchased':has_purchased,
         'related_products': related_products,
     }
 
     return render(request, 'user_side/product-details.html', context)
 
 
-
-
-
-
 def shop_side(request):
-    categories = Category.objects.all()
-    products = Products.objects.filter(is_active=True)
+    categories = Category.objects.filter(is_available=True)
+    products = Products.objects.filter(is_active=True,product_category__is_available=True)
     search_query = request.GET.get('search_query', '')
     selected_categories = request.GET.getlist('category')
     min_price = request.GET.get('min_price')
@@ -443,18 +453,21 @@ def shop_side(request):
     
     if selected_categories:
         products = products.filter(product_category__id__in=selected_categories)
+
+    products = products.annotate(
+        effective_price=Coalesce('offer_price', 'price')
+    )    
     
     if min_price:
-        products = products.filter(price__gte=min_price)
+        products = products.filter(effective_price__gte=min_price)
     
     if max_price:
-        products = products.filter(price__lte=max_price)
+        products = products.filter(effective_price__lte=max_price)
 
     sort_by = request.GET.get('sort', 'featured')
     sort_options = {
-        'price_low_high': 'price',
-        'price_high_low': '-price',
-        'avg_rating': '-avg_rating',
+        'price_low_high': 'effective_price',
+        'price_high_low': '-effective_price',
         'popularity': '-review_count',
         'new_arrivals': '-created_at',
         'name_az': Lower('product_name'),
@@ -464,9 +477,9 @@ def shop_side(request):
 
     if sort_by in sort_options:
         if sort_by == 'avg_rating':
-            products = products.annotate(avg_rating=Avg('-reviews__rating')).order_by(sort_options[sort_by])
-        # elif sort_by == 'popularity':
-        #     products = products.annotate(review_count=Count('reviews')).order_by(sort_options[sort_by])
+          products = products.annotate(avg_rating=Avg('-reviews__rating')).order_by(sort_options[sort_by])
+        elif sort_by == 'popularity':
+            products = products.annotate(review_count=Count('reviews')).order_by(sort_options[sort_by])
         elif sort_by == 'inventory':
             products = products.annotate(total_stock=Sum('product_variant__variant_stock')).order_by(sort_options[sort_by])
         else:
