@@ -11,6 +11,7 @@ from django.utils import timezone
 from decimal import Decimal
 from django.http import JsonResponse
 from .context_processors import cart_and_wishlist_counts
+import re
 
 # Create your views here.
 
@@ -202,14 +203,14 @@ def add_address(request):
     # Process the form data
     new_address = UserAddress(
         user=request.user,
-        name=request.POST.get('name'),
-        phone_number=request.POST.get('phone_number'),
-        house_name=request.POST.get('house_name'),
-        street_name=request.POST.get('street_name'),
-        district=request.POST.get('district'),
-        state=request.POST.get('state'),
-        country=request.POST.get('country'),
-        pin_number=request.POST.get('pin_number')
+        name=request.POST['name'],
+        phone_number=request.POST['phone_number'],
+        house_name=request.POST['house_name'],
+        street_name=request.POST['street_name'],
+        district=request.POST['district'],
+        state=request.POST['state'],
+        country=request.POST['country'],
+        pin_number=request.POST['pin_number']
     )
     new_address.save()
 

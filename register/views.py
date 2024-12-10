@@ -23,6 +23,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.db.models.query_utils import Q
 from django.utils.encoding import force_bytes
+from django.http import JsonResponse
 
 
 def index(request):
@@ -203,12 +204,15 @@ def password_reset_confirm(request, uidb64, token):
                 form.save()
                 messages.success(request, 'Your password has been set. You may go ahead and log in now.')
                 return redirect('password-reset-complete')
+            else:
+                print(form.errors)
         else:
             form = SetPasswordForm(user)
         return render(request, 'user_side/password_reset_confirm.html', {'form': form})
     else:
         messages.error(request, 'The password reset link was invalid, possibly because it has already been used. Please request a new password reset.')
         return redirect('password-reset')
+
 
 def password_reset_complete(request):
     return render(request, 'user_side/password_reset_complete.html')

@@ -28,14 +28,26 @@ class UserAddressForm(forms.ModelForm):
         if len(str(pin_number)) != 6:
             raise ValidationError("Pin number must be 6 digits long.")
         return pin_number
-
+    
     def clean_phone_number(self):
-        phone_number = self.cleaned_data.get('phone_number')
-        if phone_number and len(phone_number) < 10 or len(phone_number) > 15:
-            raise ValidationError("Phone number must be between 10 to 15 digits.")
-        if not phone_number.isdigit():
-            raise ValidationError("Phone number must contain only digits.")
-        return phone_number
+       phone_number = self.cleaned_data.get('phone_number')
+
+    # Ensure phone number is not empty
+       if not phone_number:
+        raise ValidationError("Phone number is required.")
+    
+    # Remove spaces and special characters for validation
+       cleaned_phone_number = ''.join(filter(str.isdigit, phone_number))
+    
+    # Length validation
+       if len(cleaned_phone_number) != 10:
+        raise ValidationError("Phone number must be exactly 10 digits.")
+    
+    # Ensure phone number is not all zeros
+       if cleaned_phone_number == "0000000000":
+        raise ValidationError("Phone number cannot be all zeros.")
+    
+       return cleaned_phone_number
 
     def clean_name(self):
         name = self.cleaned_data.get('name')

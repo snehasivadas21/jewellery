@@ -97,6 +97,22 @@
         border-radius: 8px;
         padding: 5px 20px;
     }
+
+    .image-container {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .image-container img {
+        width: 100%;
+        height: auto;
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .image-container:hover img {
+        transform: scale(1.5); /* Adjust the zoom level */
+    }
+    
     
     
 </style>
@@ -132,12 +148,18 @@
                                     <div class="product-image-slider" id="product-image-slider">
                                         {% if variant_images %}
                                             {% for image in variant_images %}
+                                            <div class="image-container">
                                             <img src="{{ image.images.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            </div>   
                                             {% endfor %}
                                         {% elif product.thumbnail %}
+                                            <div class="image-container">
                                             <img src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            </div>   
                                         {% else %}
+                                            <div class="image-container">
                                             <img src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            </div>   
                                         {% endif %}
                                     </div>
                                     <!-- THUMBNAILS -->
@@ -343,10 +365,7 @@
         </div>
     </section>
 </main>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Include jQuery and Slick Slider JS -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
 <script>
     $(document).ready(function() {
         // Function to check if the item is already in the cart
@@ -403,22 +422,13 @@
             }
         });
 
-        $(document).ready(function(){
-            $('#product-image-slider').slick({
-                slidesToShow: 1,
-                slidesToScroll: 1,
-                arrows: false,
-                fade: true,
-                asNavFor: '#thumbnails-slider'
-            });
-            $('#thumbnails-slider').slick({
-                slidesToShow: 3,
-                slidesToScroll: 1,
-                asNavFor: '#product-image-slider',
-                dots: false,
-                centerMode: true,
-                focusOnSelect: true
-            });
+        $(document).ready(function () {
+            // Initialize sliders
+            $('.product-image-slider').slick({ asNavFor: '.slider-nav-thumbnails', fade: true });
+            $('.slider-nav-thumbnails').slick({ asNavFor: '.product-image-slider', slidesToShow: 3 });
+
+            // Initialize zoom
+            $('.main-image').zoom();
         });
     
         $('.color-select').on('click', function(e) {
@@ -745,7 +755,7 @@
         function initializeZoom() {
             // Destroy any existing zoom instances
             $('.main-image').trigger('zoom.destroy');
-    
+            console.log("Initializing zoom on visible image.");
             // Apply zoom to the currently visible image
             $('.main-image:visible').zoom({
                 magnify: 1.5 // Adjust the magnification level as needed
@@ -757,6 +767,7 @@
     
         // Function to update the main image
         function updateMainImage(src) {
+            console.log("Initializing zoom on visible image.");
             $('#product-image-slider .main-image').hide(); // Hide all images
             $('#product-image-slider .main-image').filter(function() {
                 return $(this).attr('src') === src;
@@ -769,9 +780,14 @@
         // Handle thumbnail click events
         $('#thumbnails-slider').on('click', '.thumbnail-item img', function() {
             var thumbnailSrc = $(this).attr('src');
-            if (thumbnailSrc) {
-                updateMainImage(thumbnailSrc);
-            }
+            //if (thumbnailSrc) {
+                //updateMainImage(thumbnailSrc);
+            //}
+            var zoomSrc = $(this).data('zoom-image');
+            // Update main image src and data-zoom-image attributes
+            $('.main-image').attr('src', selectedSrc).attr('data-zoom-image', zoomSrc);
+
+            initializeZoom(); // Reinitialize zoom for the updated main image
         });
     
         // Handle color variant selection

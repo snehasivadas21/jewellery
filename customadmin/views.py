@@ -19,7 +19,7 @@ def admin_login(request):
         print(user)
 
         if user is not None:
-            if user.is_admin:
+            if user.is_staff:
                 login(request,user)
                 return redirect('admin_dashboard')
             else:

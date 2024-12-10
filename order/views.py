@@ -53,36 +53,42 @@ def admin_orders_details(request, oid):
     order_items = OrderSub.objects.filter(main_order=order)
     return render(request, 'admin_side/order_details.html', {'orders': order, 'order_sub': order_items})
 
-
 @admin_required
 def change_order_status(request, order_id):
     order = get_object_or_404(OrderMain, id=order_id)
     if request.method == 'POST':
         new_status = request.POST.get('order_status')
-
         current_status = order.order_status
-        invalid_transitions = {
-            'Awaiting payment': ['Pending'],
-            'Confirmed': ['Pending', 'Awaiting payment'],
-            'Shipped': ['Confirmed', 'Awaiting payment', 'Pending'],
-            'Delivered': ['Shipped', 'Confirmed', 'Awaiting payment', 'Pending'],
-            'Canceled': [status for status, _ in OrderMain.ORDER_STATUS_CHOICES] ,
-            'Returned': [status for status, _ in OrderMain.ORDER_STATUS_CHOICES]
+
+        # Define valid transitions
+        valid_transitions = {
+            'Pending': ['Awaiting payment', 'Confirmed', 'Canceled'],
+            'Awaiting payment': ['Confirmed', 'Canceled'],
+            'Confirmed': ['Shipped', 'Canceled'],
+            'Shipped': ['Delivered', 'Returned'],
+            'Delivered': [],  # No transitions possible
+            'Canceled': [],  # No transitions possible
+            'Returned': [],  # No transitions possible
         }
 
+        # Handle special case for 'Returned'
         if new_status == 'Returned':
             messages.error(request, 'Order status cannot be changed to Returned directly by the admin.')
-        elif current_status in invalid_transitions and new_status in invalid_transitions[current_status]:
+        elif current_status in valid_transitions and new_status not in valid_transitions[current_status]:
             messages.error(request, f'Cannot change status from {current_status} to {new_status}.')
-        
+        else:
+            order.order_status = new_status
+            order.save()
+            messages.success(request, f'Order status changed to {new_status}.')
+    
     return redirect('admin-orders-details', oid=order.id)
+
 
 
 #user side order fuctions
 
 def generate_unique_order_id():
     return str(uuid.uuid4())
-
 
 @csrf_exempt
 def order_placed(request):
@@ -94,9 +100,8 @@ def order_placed(request):
             payment_method = request.POST.get('payment_method')
 
             if not selected_address_id:
-              messages.error(request, "No address selected. Please choose a delivery address.")
-              return redirect('cart')  # Redirect to the cart if the address is missing.
-
+                messages.error(request, "No address selected. Please choose a delivery address.")
+                return redirect('cart')  # Redirect to the cart if the address is missing.
 
             cart_item_ids = cart_item_ids.split(',')
             cart_items = CartItem.objects.filter(id__in=cart_item_ids, cart__user=user)
@@ -113,8 +118,10 @@ def order_placed(request):
                     messages.error(request, f"{item.product.product_name} is no longer available.")
                     return redirect(f'{reverse("checkout")}?selected_address={selected_address_id}')
 
+            # Retrieve the selected address
             user_address = UserAddress.objects.get(id=selected_address_id)
 
+            # Create an OrderAddress object
             order_address = OrderAddress.objects.create(
                 name=user_address.name,
                 phone_number=user_address.phone_number,
@@ -126,6 +133,7 @@ def order_placed(request):
                 pin_number=user_address.pin_number
             )
 
+            # Calculate total and final amounts
             total_amount = sum(item.sub_total() for item in cart_items)
             final_amount = total_amount
 
@@ -134,6 +142,7 @@ def order_placed(request):
                     messages.error(request, "Cash on Delivery is not available for orders above ₹500000.")
                     return redirect(f'{reverse("checkout")}?selected_address={selected_address_id}')
 
+                # Create the order
                 order = OrderMain.objects.create(
                     user=user,
                     address=order_address,
@@ -145,6 +154,7 @@ def order_placed(request):
                     payment_status=False,
                 )
 
+                # Add items to the order and update stock
                 for item in cart_items:
                     OrderSub.objects.create(
                         user=user,
@@ -158,16 +168,21 @@ def order_placed(request):
                     variant.save()
                     item.delete()
 
+                # Redirect to order confirmation
                 return redirect('order-confirmation', order_id=order.id)
 
         except UserAddress.DoesNotExist:
             messages.error(request, "Selected address does not exist.")
-            return HttpResponseRedirect(reverse('checkout'))
         except Exception as e:
             messages.error(request, f"An error occurred: {str(e)}")
-            return HttpResponseRedirect(reverse('checkout'))
-    else:
+
+        # Redirect to checkout in case of any failure
         return HttpResponseRedirect(reverse('checkout'))
+
+    # Handle non-POST requests
+    messages.error(request, "Invalid request method.")
+    return HttpResponseRedirect(reverse('checkout'))
+
 
 def order_failure(request, order_id):
     print('you fail')

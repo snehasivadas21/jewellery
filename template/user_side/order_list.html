@@ -309,7 +309,7 @@
                 const formData = new FormData(this);
                 const itemId = formData.get('order_sub_id');
                 
-                fetch("{% url 'userpanel:cancel-order-item' %}", {
+                fetch("{% url 'cancel-order-item' %}", {
                     method: 'POST',
                     body: formData,
                     headers: {

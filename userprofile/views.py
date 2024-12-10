@@ -14,6 +14,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from django.db import transaction
 
 # Create your views here.
 @login_required(login_url='/login/')
@@ -102,9 +103,9 @@ def cancel_order(request,order_id):
 
             refund_amount +=item_refund_amount
             item.is_active=False
-            item.status='Calceled'
+            item.status='Canceled'
             item.save()
-        order.order_status='Cancaled'
+        order.order_status='Canceled'
         order.is_active=False
         order.save()
 
@@ -147,6 +148,8 @@ def password_change_view(request):
             update_session_auth_hash(request, user)
             messages.success(request, 'Your password has been successfully updated.')
             return redirect('user-profile') 
+        else:
+            print(form.errors)
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'user_side/password_change_form.html', {'form': form})
