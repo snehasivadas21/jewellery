@@ -4,7 +4,7 @@
 {% block content %}
 <main class="main">
 <!-- Breadcrumb Section Begin -->
- <section class="breadcrumb-option">
+<section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -100,7 +100,7 @@
                         <span class="h5" id="cart-total">₹0.00</span>
                     </div>
                     <a href="{% url 'checkout' %}?variants=" class="btn btn-primary w-100 mb-3" id="proceed-to-checkout">Proceed to Checkout</a>
-                    {% comment %} <form id="coupon-form" class="mb-3">
+                    <form id="coupon-form" class="mb-3">
                         {% csrf_token %}
                         <div class="input-group mb-2">
                             <input type="text" name="coupon_code" id="coupon-code" class="form-control" placeholder="Coupon Code">
@@ -113,14 +113,14 @@
                     </form>
                     <button type="button" class="btn btn-outline-secondary w-100 mt-2" data-bs-toggle="modal" data-bs-target="#couponsModal">
                         View Available Coupons
-                    </button> {% endcomment %}
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modal structure -->
-    {% comment %} <div class="modal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -152,7 +152,7 @@
                 </div>
             </div>
         </div>
-    </div> {% endcomment %}
+    </div>
 </div>  
 </main>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -249,7 +249,7 @@
         }
     }
 
-    {% comment %} function applyCoupon() {
+    function applyCoupon() {
         var couponCode = document.getElementById('coupon-code').value;
         var selectedItems = [];
         
@@ -334,7 +334,7 @@
     
     document.getElementById('remove-coupon-btn').addEventListener('click', function() {
         removeCoupon();
-    }); {% endcomment %}
+    }); 
 
     // Event Listeners
     document.querySelectorAll('.remove-item').forEach(button => {

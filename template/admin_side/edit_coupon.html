@@ -1,0 +1,22 @@
+{% extends "admin_side/base.html" %}
+{% load static %}
+{% block title %} <title>{% if form.instance.pk %}Edit Coupon{% else %}Create Coupon{% endif %}</title>{% endblock title %}
+{% block content %}
+<section class="content-main">
+    <div class="content-header">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="content-title card-title mb-0">{% if form.instance.pk %}Edit Coupon{% else %}Create Coupon{% endif %}</h2>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">{% if form.instance.pk %}Update{% else %}Create{% endif %} Coupon</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock content %}

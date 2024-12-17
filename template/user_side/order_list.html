@@ -23,6 +23,7 @@
                 </a>
                 <a href="{% url 'order-list' %}" class="list-group-item list-group-item-action">Orders</a>
                 <a href="{% url 'user-address' %}" class="list-group-item list-group-item-action">My Address</a>
+                <a href="{% url 'wallet-view' %}" class="list-group-item list-group-item-action">Wallet</a>
                 <a href="{% url 'logout' %}" class="list-group-item list-group-item-action">Log Out</a>
             </div>
         </div>
@@ -93,11 +94,6 @@
                                                 Cancel Order
                                             </button>
                                         {% endif %}
-                                        {% if order.order_status == 'Delivered' %}
-                                        <form method="get" action="{% url 'download_invoice' order_id=order.id %}">
-                                            <button type="submit">Download Invoice</button>
-                                        </form>
-                                        {% endif %}
                                         {% if order.order_status == "Delivered" %}
                                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#returnOrderModal{{ order.id }}">Return Order</button>
                                         {% endif %}
@@ -137,14 +133,14 @@
                                             </div>
 
                                             <!-- Return Item Modal -->
-                                            <!-- <div class="modal fade" id="returnItemModal{{ item.id }}" tabindex="-1" aria-labelledby="returnItemModalLabel{{ item.id }}" aria-hidden="true">
+                                            <div class="modal fade" id="returnItemModal{{ item.id }}" tabindex="-1" aria-labelledby="returnItemModalLabel{{ item.id }}" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h5 class="modal-title" id="returnItemModalLabel{{ item.id }}">Return Item</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <form method="post" action="#">
+                                                        <form method="post" action="{% url 'return-order' order.id %}">
                                                             {% csrf_token %}
                                                             <div class="modal-body">
                                                                 <div class="mb-3">
@@ -159,7 +155,7 @@
                                                         </form>
                                                     </div>
                                                 </div>
-                                            </div> -->
+                                            </div>
 
                                             
 
@@ -217,15 +213,15 @@
                                 </div>
 
                                 <!-- Return Order Modal -->
-                                <!-- <div class="modal fade" id="returnOrderModal{{ order.id }}" tabindex="-1" aria-labelledby="returnOrderModalLabel{{ order.id }}" aria-hidden="true">
+                                <div class="modal fade" id="returnOrderModal{{ order.id }}" tabindex="-1" aria-labelledby="returnOrderModalLabel{{ order.id }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
-                                            <div class="modal-header"> -->
+                                            <div class="modal-header">
                                                 <!-- Update the id here -->
-                                                <!-- <h5 class="modal-title" id="returnOrderModalLabel{{ order.id }}">Return Order</h5>
+                                                <h5 class="modal-title" id="returnOrderModalLabel{{ order.id }}">Return Order</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form method="post" action="#">
+                                            <form method="post"  action="{% url 'return-order' order.id %}">
                                                 {% csrf_token %}
                                                 <div class="modal-body">
                                                     <div class="mb-3">
@@ -240,7 +236,7 @@
                                             </form>
                                         </div>
                                     </div>
-                                </div> -->
+                                </div>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -427,9 +423,8 @@
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Handle return order form submission
-        const returnOrderForms = document.querySelectorAll('form[action^="/userpanel/return-order/"]');
-    
+        const returnOrderForms = document.querySelectorAll('form[action^="/userprofile/return-order/"]');
+        
         returnOrderForms.forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -447,9 +442,8 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update the UI to reflect the returned order
-                        const orderRow = document.querySelector(`#orderRow${orderId}`);
-                        if (orderRow) {
+                        // This code tries to update the status, but won't work without a valid selector
+                        const orderRow = document.querySelector(`#orderRow${orderId}`); if (orderRow) {
                             const statusSpan = orderRow.querySelector('.order-status');
                             if (statusSpan) {
                                 statusSpan.textContent = 'Returned';

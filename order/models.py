@@ -41,7 +41,6 @@ class OrderMain(models.Model):
     payment_status = models.BooleanField(default=False)
     payment_id = models.CharField(max_length=50)
     
-    
 
 class OrderSub(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

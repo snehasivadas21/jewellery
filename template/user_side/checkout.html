@@ -2,9 +2,9 @@
 {% load static %}
 
 {% block content %}
-<main class="container my-5">
+<main class="main">
     <!-- Breadcrumb Section Begin -->
- <section class="breadcrumb-option">
+<section class="breadcrumb-option">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -19,8 +19,9 @@
             </div>
         </div>
     </div>
- </section>
+</section>
    <!-- Breadcrumb Section End -->
+<div class="container">    
    <form method="post" action="{% url 'order-placed' %}" id="checkoutForm">
         {% csrf_token %}
         <input type="hidden" name="cart_item_ids" value="{{ cart_item_ids }}">
@@ -90,11 +91,6 @@
                             <span>Discount</span>
                             <span class="text-success">-{{ discount_amount|floatformat:2 }}</span>
                         </div>
-                        
-                        {% comment %} <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal</span>
-                            <span>₹{{ cart_total }}</span>
-                        </div> {% endcomment %}
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping</span>
                             <span class="text-success">Free</span>
@@ -112,7 +108,7 @@
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
                         <h3 class="card-title h5 mb-3">Payment Method</h3>
-                        <!-- <div class="form-check mb-2">
+                        <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="payment_method" id="wallet" value="wallet" checked>
                             <label class="form-check-label" for="wallet">
                                 wallet
@@ -123,7 +119,7 @@
                             <label class="form-check-label" for="razorpay">
                                 razorpay
                             </label>
-                        </div> -->
+                        </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="payment_method" id="cashOnDelivery" value="cash_on_delivery">
                             <label class="form-check-label" for="cashOnDelivery">
@@ -136,6 +132,7 @@
             </div>
         </div>
     </form>
+</div>    
 </main>
 
 <!-- New Address Modal -->

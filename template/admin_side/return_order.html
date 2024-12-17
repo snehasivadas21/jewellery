@@ -45,7 +45,7 @@
                             <td>{{ item.order.id }}</td>
                             <td><b>{{ item.order.address.name }}</b></td>
                             <td>{{ item.order.order_id }}</td>
-                            <td>${{ item.order.final_amount }}</td>
+                            <td>₹{{ item.order.final_amount }}</td>
                             <td>{{ item.order.date }}</td>
                             <td>
                                 {% if item.has_pending_returns %}
@@ -132,7 +132,7 @@
         <div class="col-sm-6">
             <script>
                 document.write(new Date().getFullYear())
-            </script> ©, Evara - HTML Ecommerce Template.
+            </script> ©,ETERNAGEM
         </div>
         <div class="col-sm-6">
             <div class="text-sm-end">

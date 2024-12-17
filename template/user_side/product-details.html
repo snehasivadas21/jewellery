@@ -220,10 +220,10 @@
                                             </li>
                                             <!-- Cash on Delivery -->
                                             <li>
-                                                <i class="fas fa-hand-holding-usd mr-3"></i> Cash on Delivery available
+                                                <i class="fas fa-hand-holding-usd mr-3"></i> Easy and Secure Payment
                                             </li>
                                             <li>
-                                                <i class="fas fa-shield-alt mr-3" ></i> Lifetime Maintainance
+                                                <i class="fas fa-shield-alt mr-3" ></i> The Purity Guarantee
                                             </li>
                                         </ul>
                                     </div>                                    
@@ -278,17 +278,23 @@
                                     
                                     <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                                     <div class="detail-extralink">
-                                         <div class="detail-qty border radius" style="display: block;">
-                                            <a href="#" class="qty-down" onclick="updateQty(this, -1)"><i class="fi-rs-angle-small-down"></i></a>
-                                            <span class="qty-val">1</span>
+                                        <div style="display: flex; align-items: center; gap: 20px;">
+                                        <div class="detail-qty border radius" style="display: inline-flex; align-items: center; border: 1px solid #ccc; border-radius: 5px; width: 80px; height: 40px; background-color: #f9f9f9; overflow: hidden;">
+                                            <a href="#" class="qty-down" onclick="updateQty(this, -1)" style="display: flex; justify-content: center; align-items: center; width: 30%; color: #333; text-decoration: none; height: 100%; font-size: 16px;">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </a>
+                                            <span class="qty-val" style="flex: 1; text-align: center; font-size: 14px; font-weight: bold; color: #333; background-color: #fff;">1</span>
                                             <a href="#" class="qty-up" onclick="
                                                 var qtySpan = this.previousElementSibling;
                                                 var currentQty = parseInt(qtySpan.textContent);
                                                 if (currentQty < 5) {
                                                     updateQty(this, 1);
                                                 }
-                                            "><i class="fi-rs-angle-small-up"></i></a>
-                                        </div> 
+                                            " style="display: flex; justify-content: center; align-items: center; width: 30%; color: #333; text-decoration: none; height: 100%; font-size: 15px;">
+                                                <i class="fas fa-chevron-up"></i>
+                                            </a>
+                                        </div>
+                                        
                                         <div class="product-extra-link2">
                                             {% if user.is_authenticated %}
                                                 <!-- Add to Cart Button -->
@@ -298,12 +304,13 @@
                                                 <button id="go-to-cart" type="button" class="button button-go-to-cart" style="background-color: #28a745; color: white;" style="display:none;" onclick="window.location.href='{% url 'cart-view' %}'">Go to Cart</button>
 
                                                  <!-- Wishlist Button -->
-                                                <a href="#" class="action-btn hover-up wishlist-toggle" data-url="#">
-                                                    <i class="fi-rs-heart" id="wishlistIcon"></i>
+                                                <a href="#" class="action-btn hover-up wishlist-toggle" data-url="{% url 'toggle_wishlist' %}" style="text-decoration: none; font-size: 25px;">
+                                                    <i class="fas fa-heart" style="color: red;" id="wishlistIcon"></i>
                                                 </a>
                                             {% else %}
                                                 <button type="button" class="button button-add-to-cart " style="background-color: #28a745; color: white; " id="login-to-add">Add to Cart</button>
                                             {% endif %}
+                                        </div>
                                         </div>
                                     </div>
                                 </div>
@@ -506,7 +513,7 @@
             // Update button status based on the selected variant
             updateButtonStatus();
         });
-    
+        
         $('.button-add-to-cart').on('click', function(e) {
             e.preventDefault();
             var selectedColor = $('.color-select.selected').data('variant-id');

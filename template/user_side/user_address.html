@@ -22,6 +22,7 @@
                 </a>
                 <a href="{% url 'order-list' %}" class="list-group-item list-group-item-action">Orders</a>
                 <a href="{% url 'user-address' %}" class="list-group-item list-group-item-action">My Address</a>
+                <a href="{% url 'wallet-view' %}" class="list-group-item list-group-item-action">Wallet</a>
                 <a href="{% url 'logout' %}" class="list-group-item list-group-item-action">Log Out</a>
             </div>
         </div>
@@ -30,7 +31,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="card-title mb-0">Address Information</h4>
-                        <a href="{% url 'useradd-address' %}"><button class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addAddressForm">Add an address</button></a>
+                        <a href="{% url 'user-address' %}"><button class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addAddressForm">Add an address</button></a>
                     </div>
                     
 

@@ -7,6 +7,7 @@ from django.contrib import messages
 from userprofile.models import UserAddress
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
+from coupon.models import Coupon,UserCoupon
 from django.utils import timezone
 from decimal import Decimal
 from django.http import JsonResponse
@@ -20,13 +21,15 @@ def cart_view(request):
     user_cart, created = Cart.objects.get_or_create(user=request.user)
     cart_items = CartItem.objects.filter(cart=user_cart, is_active=True).order_by('-cart__updated_at')
     cart_total = sum(item.sub_total() for item in cart_items)
-
+    
+    available_coupons = Coupon.objects.filter(status=True,expiry_date__gte=timezone.now())
     for item in cart_items:
         item.variant_image = Product_variant_images.objects.filter(product_variant=item.variant).first()
 
     context = {
         'cart_items': cart_items,
         'cart_total': cart_total,
+        'available_coupons':available_coupons,
     }
     return render(request, 'user_side/cart_view.html', context)
 
@@ -98,12 +101,39 @@ def update_cart_quantity(request):
         selected_cart_items = CartItem.objects.filter(cart__user=request.user, id__in=selected_items, is_active=True)
         cart_total = sum(item.sub_total() for item in selected_cart_items)
         
+        applied_coupon_id = request.session.get('applied_coupon')
+        discount_amount = Decimal('0')
+        coupon_message = ''
+        
+        if applied_coupon_id:
+            try:
+                coupon = Coupon.objects.get(id=applied_coupon_id, status=True)
+                if coupon.expiry_date >= timezone.now().date():
+                    if cart_total >= coupon.minimum_amount:
+                        discount_percentage = Decimal(coupon.discount) / Decimal(100)
+                        calculated_discount = cart_total * discount_percentage
+                        if coupon.maximum_amount > 0:
+                            discount_amount = min(calculated_discount, Decimal(coupon.maximum_amount))
+                        else:
+                            discount_amount = calculated_discount
+                        coupon_message = 'Coupon applied successfully!'
+                    else:
+                        coupon_message = f'Cart total must be at least ₹{coupon.minimum_amount} to apply the coupon.'
+                else:
+                    coupon_message = 'Coupon has expired.'
+            except Coupon.DoesNotExist:
+                coupon_message = 'Coupon is no longer valid.'
+        
+        final_total = cart_total - discount_amount
         
         
         return JsonResponse({
             'success': True,
             'cart_total': float(cart_total),
             'item_sub_total': float(item_sub_total),
+            'final_total':float(final_total),
+            'discount_amount':float(discount_amount),
+            'coupon_message':coupon_message
         })
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
@@ -144,6 +174,24 @@ def checkout(request):
 
     cart_total = sum(item.sub_total() for item in cart_items)
     discount_amount = Decimal('0.00')
+
+    if request.session.get('applied_coupon'):
+        coupon_id = request.session['applied_coupon']
+        try:
+            coupon = Coupon.objects.get(id=coupon_id)
+        except Coupon.DoesNotExist:
+            coupon = None
+
+        if coupon:
+            discount_percentage = Decimal(coupon.discount) / Decimal(100)
+            calculated_discount = cart_total * discount_percentage
+
+            if coupon.maximum_amount:
+                discount_amount = min(calculated_discount, coupon.maximum_amount)
+            else:
+                discount_amount = calculated_discount
+
+            cart_total -= discount_amount
 
     context = {
         'user_addresses': user_addresses,

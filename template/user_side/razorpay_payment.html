@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <h1>Complete Payment</h1>
+    <p>Order ID: {{ order.id }}</p>
+    <p>Amount: ₹{{ amount }}</p>
+
+    <button id="rzp-button">Pay Now</button>
+
+    <script>
+        const options = {
+            "key": "{{ razorpay_merchant_key }}", // Your Razorpay Key ID
+            "amount": "{{ amount|floatformat:2 }}" * 100, // Amount in paise
+            "currency": "INR",
+            "name": "ETERNAGEM",
+            "description": "Test Transaction",
+            "order_id": "{{ razorpay_order_id }}", // Razorpay Order ID
+            "callback_url": "{{ callback_url }}",
+            "prefill": {
+                "name": "{{ request.user.get_full_name }}",
+                "email": "{{ request.user.email }}",
+                "contact": "{{ order.phone }}"
+            },
+            "theme": {
+                "color": "#F37254"
+            }
+        };
+
+        const rzp1 = new Razorpay(options);
+        document.getElementById('rzp-button').onclick = function(e) {
+            rzp1.open();
+            e.preventDefault();
+        };
+    </script>
+</body>
+</html>

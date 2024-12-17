@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'userprofile',
     'order',
     'cart',
+    'coupon',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'cart.context_processors.cart_and_wishlist_counts',
             ],
         },
     },
@@ -192,6 +194,9 @@ AUTHENTICATION_BACKENDS = [
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY =config('GOOGLE_CLIENT_ID') 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET =config('GOOGLE_CLIENT_SECRET') 
+
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
 
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [

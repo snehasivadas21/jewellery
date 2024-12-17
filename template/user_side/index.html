@@ -100,20 +100,56 @@
                     </nav>
                 </div>
                 <div class="col-lg-3 col-md-3">
-                    <div class="header__nav__option">
-                        <a href="#" class="search-switch"><img src="{% static "/img/icon/search.png" %}" alt=""></a>
-                        <a href="#" class="me-3 position-relative"><img src="{% static 'img/icon/heart.png' %}" alt="">
-                            <!-- <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="wishlist-count">
+                    <div class="header__nav__option d-flex align-items-center justify-content-between" style="gap: 10px;">
+                        
+                        <!-- Search Box -->
+                        <div class="search-style-2" style="flex-grow: 1;">
+                            <form action="{% url 'shop-side' %}" method="GET" style="display: flex; align-items: center; width: 100%;">
+                                <input 
+                                    type="text" 
+                                    name="search_query" 
+                                    placeholder="Search for items..." 
+                                    value="{{ request.GET.search_query }}" 
+                                    style="
+                                        border: 1px solid #ccc; 
+                                        border-radius: 20px; 
+                                        padding: 5px 10px; 
+                                        font-size: 14px; 
+                                        flex: 1; 
+                                        outline: none;">
+                                <button 
+                                    type="submit" 
+                                    style="
+                                        background-color: #4CAF50; 
+                                        color: white; 
+                                        border: none; 
+                                        padding: 5px 10px; 
+                                        margin-left: 5px; 
+                                        border-radius: 20px; 
+                                        cursor: pointer;">
+                                    Search
+                                </button>
+                            </form>
+                        </div>
+                
+                        <!-- Wishlist Icon -->
+                        <a href="{% url 'wishlist' %}" class="position-relative" style="flex-shrink: 0;">
+                            <img src="{% static 'img/icon/heart.png' %}" alt="Wishlist">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="wishlist-count" style="font-size: 12px;">
                                 {{ wishlist_item_count }}
-                            </span> -->
+                            </span>
                         </a>
-                        <a href="{% url 'cart-view' %}" class="me-3 position-relative"><img src="{% static 'img/icon/cart.png' %}" alt="">
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="cart-count">
+                
+                        <!-- Cart Icon -->
+                        <a href="{% url 'cart-view' %}" class="position-relative" style="flex-shrink: 0;">
+                            <img src="{% static 'img/icon/cart.png' %}" alt="Cart">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="cart-count" style="font-size: 12px;">
                                 {{ cart_item_count }}
                             </span>
                         </a>
                     </div>
                 </div>
+                
             </div>
             <div class="canvas__open"><i class="fa fa-bars"></i></div>
         </div>
@@ -439,55 +475,6 @@
         </div>
     </section>
     <!-- Product Section End -->
-
-    <!-- Categories Section Begin -->
-    <section class="categories spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="categories__text">
-                        <h2>Eternal Love </h2>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="categories__hot__deal">
-                        <img src="{% static "/img/product-sale.jpeg" %}" alt="">
-                        <div class="hot__deal__sticker">
-                            <span>Sale Of</span>
-                            <h5>$29.99</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 offset-lg-1">
-                    <div class="categories__deal__countdown">
-                        <span>Deal Of The Week</span>
-                        <h2>Stormy Tanzanite Harmony Necklace Set</h2>
-                        <div class="categories__deal__countdown__timer" id="countdown">
-                            <div class="cd-item">
-                                <span>3</span>
-                                <p>Days</p>
-                            </div>
-                            <div class="cd-item">
-                                <span>1</span>
-                                <p>Hours</p>
-                            </div>
-                            <div class="cd-item">
-                                <span>50</span>
-                                <p>Minutes</p>
-                            </div>
-                            <div class="cd-item">
-                                <span>18</span>
-                                <p>Seconds</p>
-                            </div>
-                        </div>
-                        <a href="#" class="primary-btn">Shop now</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Categories Section End -->
-
     <!-- Latest Blog Section Begin -->
     <section class="latest spad">
         <div class="container">

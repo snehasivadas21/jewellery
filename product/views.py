@@ -360,7 +360,6 @@ def edit_variant(request, variant_id):
             messages.error(request, 'weight code is required.')
             return redirect('edit-variant', variant_id=variant_id)
 
-        # variant.gemstone = gemstone
         variant.colour_code=colour_code
         variant.colour_name = stripped_colour_name
         variant.weight = stripped_weight
