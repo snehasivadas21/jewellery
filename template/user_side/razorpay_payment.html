@@ -7,36 +7,53 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
-    <h1>Complete Payment</h1>
-    <p>Order ID: {{ order.id }}</p>
-    <p>Amount: ₹{{ amount }}</p>
-
-    <button id="rzp-button">Pay Now</button>
-
     <script>
-        const options = {
-            "key": "{{ razorpay_merchant_key }}", // Your Razorpay Key ID
-            "amount": "{{ amount|floatformat:2 }}" * 100, // Amount in paise
+        var options = {
+            "key": "{{ razorpay_merchant_key }}",
+            "amount": "{{ amount|floatformat:2 }}" * 100,
             "currency": "INR",
             "name": "ETERNAGEM",
-            "description": "Test Transaction",
-            "order_id": "{{ razorpay_order_id }}", // Razorpay Order ID
-            "callback_url": "{{ callback_url }}",
-            "prefill": {
-                "name": "{{ request.user.get_full_name }}",
-                "email": "{{ request.user.email }}",
-                "contact": "{{ order.phone }}"
+            "description": "Order Payment",
+            "order_id": "{{ razorpay_order_id }}",
+            "callback_url": "{% url 'razorpay-callback' %}?order_id={{ razorpay_order_id }}",
+            "handler": function (response) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "{% url 'razorpay-callback' %}";
+
+                var payment_id = document.createElement('input');
+                payment_id.type = 'hidden';
+                payment_id.name = 'razorpay_payment_id';
+                payment_id.value = response.razorpay_payment_id;
+                form.appendChild(payment_id);
+
+                var order_id = document.createElement('input');
+                order_id.type = 'hidden';
+                order_id.name = 'razorpay_order_id';
+                order_id.value = response.razorpay_order_id;
+                form.appendChild(order_id);
+
+                var signature = document.createElement('input');
+                signature.type = 'hidden';
+                signature.name = 'razorpay_signature';
+                signature.value = response.razorpay_signature;
+                form.appendChild(signature);
+
+                document.body.appendChild(form);
+                form.submit();
             },
             "theme": {
                 "color": "#F37254"
+            },
+            "method": {
+                "netbanking": true, // Enables net banking
+                "card": true,       // Allows card payments
+                "upi": true,        // Allows UPI payments
+                "wallet": true      // Allows wallet payments
             }
         };
-
-        const rzp1 = new Razorpay(options);
-        document.getElementById('rzp-button').onclick = function(e) {
-            rzp1.open();
-            e.preventDefault();
-        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
     </script>
 </body>
 </html>

@@ -89,11 +89,22 @@
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column gap-2">
+                                            {% if order.order_status == "Pending" or order.order_status == "Awaiting payment" %}
+                                            <form method="post" action="{% url 'retry_payment' order_id=order.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit">Retry Payment</button>
+                                            </form>
+                                            {% endif %}
                                             {% if order.order_status in status_list and order.has_active_items %}
                                             <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelOrderModal{{ order.id }}">
                                                 Cancel Order
                                             </button>
                                         {% endif %}
+                                        {% if order.order_status == 'Delivered' %}
+                                        <form method="get" action="{% url 'download_invoice' order_id=order.id %}">
+                                            <button type="submit">Download Invoice</button>
+                                        </form>
+                                       {% endif %}
                                         {% if order.order_status == "Delivered" %}
                                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#returnOrderModal{{ order.id }}">Return Order</button>
                                         {% endif %}
@@ -102,7 +113,7 @@
                                             </button>
                                         </div>
                                     </td>
-                                </tr>
+                                </tr>                                                                                                                                       
                                 <!------order details------>
                                 <tr class="collapse" id="orderDetails{{ order.id }}">
                                     <td colspan="8" class="bg-light">

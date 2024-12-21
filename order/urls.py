@@ -14,4 +14,5 @@ urlpatterns = [
   path('returned-orders/', views.returned_orders, name='returned-orders'),
   path('return-request/update/<int:return_request_id>/', views.update_return_request, name='update-return-request'),
   path('razorpay/callback/', views.razorpay_callback, name='razorpay-callback'),
+  path('order/<int:order_id>/retry-payment/', views.retry_payment, name='retry_payment'),
 ]

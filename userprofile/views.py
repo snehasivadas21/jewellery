@@ -16,6 +16,14 @@ from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db import transaction
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate,Table,TableStyle,Paragraph,Spacer
+from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
+from reportlab.lib.units import inch
+from io import BytesIO
+from django.http import HttpResponse,FileResponse
+
 
 # Create your views here.
 @login_required(login_url='/login/')
@@ -323,7 +331,109 @@ def wallet_view(request):
 
     return render(request, 'user_side/wallet.html', context)
 
-                         
+@login_required
+def download_invoice(request, order_id):
+    try:
+        order_main = get_object_or_404(OrderMain, id=order_id)
+        order_sub = OrderSub.objects.filter(main_order=order_main, is_active=True)
+        buffer = BytesIO()
+
+        try:
+            doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+            elements = []
+
+            styles = getSampleStyleSheet()
+            title_style = styles['Heading1']
+            subtitle_style = ParagraphStyle(name="Subtitle", fontSize=14, leading=18, spaceAfter=12)
+            normal_style = styles['Normal']
+
+            elements.append(Paragraph("ETERNAGEM", title_style))
+            elements.append(Paragraph("INVOICE", subtitle_style))
+            elements.append(Spacer(1, 0.5 * inch))
+
+            elements.append(Paragraph(f"<b>Order ID:</b> {order_main.order_id}", normal_style))
+            elements.append(Paragraph(f"<b>Order Date:</b> {order_main.date.strftime('%B %d, %Y')}", normal_style))
+            elements.append(Paragraph(f"<b>Customer Name:</b> {order_main.address.name}", normal_style))
+            elements.append(Paragraph(f"<b>Email:</b> {order_main.user.email}", normal_style))
+            elements.append(Paragraph(f"<b>Phone:</b> {order_main.address.phone_number}", normal_style))
+            elements.append(Paragraph(f"<b>Address:</b> {order_main.address.house_name}, {order_main.address.street_name}, {order_main.address.district}, {order_main.address.state}, {order_main.address.pin_number}, {order_main.address.country}", normal_style))
+            elements.append(Spacer(1, 0.5 * inch))
+
+            data = [['Product', 'Quantity', 'Unit Price', 'Discount', 'Total Price']]
+            subtotal = Decimal('0.00')
+            total_discount = Decimal('0.00')
+
+            for item in order_sub:
+                item_total_cost = Decimal(str(item.total_cost()))
+                order_total_amount = Decimal(str(order_main.total_amount))
+                order_discount_amount = Decimal(str(order_main.discount_amount))
+
+                item_discount_amount = (order_discount_amount * item_total_cost) / order_total_amount
+                item_final_price = item_total_cost - item_discount_amount
+
+                subtotal += item_total_cost
+                total_discount += item_discount_amount
+
+                data.append([
+                    Paragraph(item.variant.product.product_name, normal_style), 
+                    str(item.quantity),
+                    f"₹{Decimal(item.price):.2f}",
+                    f"-₹{item_discount_amount:.2f}",
+                    f"₹{item_final_price:.2f}"
+                ])
+
+            table = Table(data, colWidths=[None, 1.25 * inch, 1.25 * inch, 1.25 * inch, 1.5 * inch])
+            style = TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+                ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+                ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),
+                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('FONTSIZE', (0, 1), (-1, -1), 11),
+                ('VALIGN', (0, 1), (-1, -1), 'TOP'),
+            ])
+            table.setStyle(style)
+            elements.append(table)
+
+            elements.append(Spacer(1, 0.5 * inch))
+
+            total_data = [
+                ['Subtotal:', f"₹{subtotal:.2f}"],
+                ['Discount:', f"-₹{total_discount:.2f}"],
+                ['Shipping:', 'Free'],
+                ['Total:', f"₹{subtotal - total_discount:.2f}"]
+            ]
+
+            total_table = Table(total_data, colWidths=[4 * inch, 1.5 * inch], hAlign='RIGHT')
+            total_table_style = TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 12),
+                ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black)
+            ])
+            total_table.setStyle(total_table_style)
+            elements.append(total_table)
+
+            elements.append(Spacer(1, 1 * inch))
+            elements.append(Paragraph("Thank you for shopping with ETERNAGEM!", normal_style))
+
+            doc.build(elements)
+        except Exception as e:
+            return HttpResponse(f'Error generating PDF content: {str(e)}', status=500)
+
+        buffer.seek(0)
+        
+        return FileResponse(buffer, as_attachment=True, filename=f'invoice_{order_id}.pdf')
+
+    except Exception as e:
+        return HttpResponse(f'Error generating PDF: {str(e)}', status=500)
+
 
 
 
