@@ -46,9 +46,6 @@
                     </td>
                     <td>
                         <a href="{% url 'product-detail' product.id %}" class="btn btn-primary me-2">More</a>
-                        <a href="#" class="btn btn-warning  me-2" onclick="confirmAction('{% url 'avilable_product' product.id %}', '{% if product.is_available %}Are you sure you want to delete this product?{% else %}Are you sure you want to restore this product?{% endif %}')">
-                            {% if product.is_available %}Delete{% else %}Restore{% endif %}
-                        </a>
                     </td> 
                 </tr>
                 {% endfor %}

@@ -39,46 +39,50 @@ def admin_login(request):
 
     return render(request,'admin_side/admin_login.html')
 
+
 @admin_required
 def admin_dashboard(request):
-    delivered_orders=OrderMain.objects.filter(order_status="Delivered")
-    total_order_amount=delivered_orders.aggregate(Sum('final_amount'))['final_amount__sum'] or 0
-    total_order_count=delivered_orders.count()
+    delivered_orders = OrderMain.objects.filter(order_status='Delivered')
 
-    current_month=now().month
-    current_year=now().year
-    monthly_orders=OrderMain.objects.filter(date__year=current_year,date__month=current_month,order_status='Delivered')
-    monthly_earnings=monthly_orders.aggregate(Sum('final_amount'))['final_amount__sum'] or 0
-    total_discounts_given=monthly_orders.aggregate(Sum('discount_amount'))['discount_amount__sum'] or 0
+    total_order_amount = delivered_orders.aggregate(Sum('final_amount'))['final_amount__sum'] or 0
+    total_order_count = delivered_orders.count()
 
-    monthly_order_count=OrderMain.objects.filter(
+    current_month = now().month
+    current_year = now().year
+    monthly_orders = OrderMain.objects.filter(date__year=current_year, date__month=current_month,order_status='Delivered')
+    monthly_earnings = monthly_orders.aggregate(Sum('final_amount'))['final_amount__sum'] or 0
+    total_discounts_given = monthly_orders.aggregate(Sum('discount_amount'))['discount_amount__sum'] or 0
+
+
+    monthly_order_count = OrderMain.objects.filter(
         order_status="Delivered"
     ).annotate(
         month=ExtractMonth('date'),
         year=ExtractYear('date')
-    ).values('year','month').annotate(count=Count('id')).order_by('year','month')
+    ).values('year', 'month').annotate(count=Count('id')).order_by('year', 'month')
 
-    labels=[f'{entry["month"]}/{entry["year"]}'for entry in monthly_order_count]
-    data=[entry['count']for entry in monthly_order_count]
+    labels = [f'{entry["month"]}/{entry["year"]}' for entry in monthly_order_count]
+    data = [entry['count'] for entry in monthly_order_count]
 
     user_registrations = User.objects.annotate(
         month=TruncMonth('date_joined')
     ).values('month').annotate(count=Count('id')).order_by('month')
 
-    user_labels=[entry['month'].strftime('%b %Y') for entry in user_registrations]
-    user_data=[entry['count'] for entry in user_registrations]
-
-    context={
-        'total_order_amount':total_order_amount,
-        'total_order_count':total_order_count,
-        'monthly_earnings':monthly_earnings,
-        'total_discounts_given':total_discounts_given,
-        'labels':json.dumps(labels),
-        'data':json.dumps(data),
-        'user_labels':json.dumps(user_labels),
-        'user_data':json.dumps(user_data)
+    user_labels = [entry['month'].strftime('%b %Y') for entry in user_registrations]
+    user_data = [entry['count'] for entry in user_registrations]
+    
+    context = {
+        'total_order_amount': total_order_amount,
+        'total_order_count': total_order_count,
+        'monthly_earnings': monthly_earnings,
+        'total_discounts_given': total_discounts_given,
+        'labels': json.dumps(labels),
+        'data': json.dumps(data),
+        'user_labels': json.dumps(user_labels),
+        'user_data': json.dumps(user_data)
     }
-    return render(request, 'admin_side/admin_dashboard.html',context)
+    
+    return render(request, 'admin_side/admin_dashboard.html', context)
 
 @admin_required
 def user_list(request):

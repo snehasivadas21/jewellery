@@ -19,15 +19,10 @@
         <div class="card-body">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% comment %} <div class="form-group">
-                    <label for="gemstone">Gemstone</label>
-                    <select class="form-control" id="gemstone" name="gemstone" required>
-                        <option value="diamond">Diamond</option>
-                        <option value="ruby">Ruby</option>
-                        <option value="sapphire">Sapphire</option>
-                        <option value="emerald">Emerald</option>
-                    </select>
-                </div> {% endcomment %}
+                <div class="form-group">
+                    <label for="variant_weight">Weight</label>
+                    <input type="text" class="form-control" id="variant_weight" name="variant_weight" value="{{ variant.weight }}">
+                </div>
                 <div class="form-group">
                     <label for="colour_name">Colour Name</label>
                     <input type="text" class="form-control" id="colour_name" name="colour_name" value="{{ variant.colour_name }}">
@@ -36,14 +31,14 @@
                     <label for="colour_code">Colour Code</label>
                     <input type="color" class="form-control square-color-picker" id="colour_code" name="colour_code" value="{{ variant.colour_code }}" required>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label for="weight">Weight</label>
                     <select class="form-control" id="weight" name="weight" required>
                         <option value="Lightweight">Lightweight</option>
                         <option value="Medium weight">Medium weight</option>
                         <option value="Heavyweight">Heavyweight</option>
                     </select>
-                </div>
+                </div> -->
                 
                 <div class="form-group">
                     <label for="variant_stock">Variant Stock</label>

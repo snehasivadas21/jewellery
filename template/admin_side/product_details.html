@@ -70,7 +70,7 @@
                             <button type="button" class="btn {% if products.is_active %}btn-danger{% else %}btn-success{% endif %} me-2 status-button" data-product-id="{{ products.id }}">Status</button>
                         </form>
                         <a href="{% url 'edit-product' products.id %}" class="btn btn-warning me-2">Edit</a>
-                        {% comment %} <a href="{% url 'add-images' products.id %}" class="btn btn-info me-2">Add Images</a> {% endcomment %}
+                        <a href="{% url 'add-images' products.id %}" class="btn btn-info me-2">Add Images</a>
                         <a href="{% url 'variant-detail' products.id %}" class="btn btn-secondary me-2">Variant</a>
                         <a href="{% url 'products-list' %}" class="btn btn-secondary me-2">Back</a>
                     </div>

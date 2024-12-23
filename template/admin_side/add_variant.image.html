@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>Add Images for Variant {{ product_variant.product.product_name }} - {{ product_variant.size }} - {{ product_variant.colour_name }}</h1>
+    <h1>Add Images for Variant {{ product_variant.product.product_name }} -{{ product_variant.colour_name }}</h1>
     <!-- Add Variant Images Form -->
     <form method="post" enctype="multipart/form-data" id="variant-image-form">
         {% csrf_token %}

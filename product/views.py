@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import Products,Category,Product_images,Product_Variant,Product_variant_images
+from .models import Products,Category,Product_images,Product_Variant,Product_variant_images,Review
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch,Avg,Count,Sum
@@ -163,13 +163,6 @@ def edit_product(request, product_id):
     })
 
 @admin_required
-def product_is_available(request, product_id):
-    product = get_object_or_404(Products, id=product_id)
-    product.is_available = not product.is_available
-    product.save()
-    return redirect('products-list')
-
-@admin_required
 def product_status(request, product_id):
     product = get_object_or_404(Products, id=product_id)
     product.is_active = not product.is_active
@@ -201,24 +194,21 @@ def add_variant(request, product_id):
     variants = Product_Variant.objects.filter(product=product)
 
     if request.method == 'POST':
+        weight = request.POST.get('weight')
         colour_name = request.POST.get('colour_name')
         variant_stock = request.POST.get('variant_stock')
         variant_status = request.POST.get('variant_status')
-        weight = request.POST.get('weight')  # Value from frontend
-        colour_code=request.POST.get('colour_code')
+        colour_code = request.POST.get('colour_code')
 
-        # Validate color name
+        if not weight:
+            messages.error(request, 'weight is required.')
+            return redirect('add-variant', product_id=product_id)
+
         stripped_colour_name = colour_name.strip()
         if not re.match("^[A-Za-z ]+$", stripped_colour_name):
             messages.error(request, 'Color name must contain only letters and spaces.')
             return redirect('add-variant', product_id=product_id)
 
-        # Validate weight
-        if weight not in ['Lightweight', 'Medium weight', 'Heavyweight']:
-            messages.error(request, 'Invalid weight category.')
-            return redirect('add-variant', product_id=product_id)
-
-        # Validate stock
         try:
             variant_stock = int(variant_stock)
             if variant_stock < 0:
@@ -226,29 +216,37 @@ def add_variant(request, product_id):
         except ValueError:
             messages.error(request, 'Variant stock must be a valid number.')
             return redirect('add-variant', product_id=product_id)
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return redirect('add-variant', product_id=product_id)
 
-        # Validate status
         if variant_status not in ['0', '1']:
             messages.error(request, 'Invalid variant status.')
             return redirect('add-variant', product_id=product_id)
         variant_status = bool(int(variant_status))
 
-        # Check for duplicates
-        variant_exists = Product_Variant.objects.filter(
+        name_exists = Product_Variant.objects.filter(
             product=product,
-            colour_name=stripped_colour_name,
-            weight=weight
+            colour_name=stripped_colour_name
         ).exists()
 
-        if variant_exists:
-            messages.error(request, 'A variant with this color and weight already exists.')
+        if name_exists:
+            messages.error(request, 'A variant with this color name already exists.')
             return redirect('add-variant', product_id=product_id)
 
-        # Create variant
+        code_exists = Product_Variant.objects.filter(
+            product=product,
+            colour_code=colour_code
+        ).exists()
+
+        if code_exists:
+            messages.error(request, 'A variant with this color code already exists.')
+            return redirect('add-variant', product_id=product_id)
+
         variant = Product_Variant.objects.create(
             product=product,
-            colour_name=colour_name,
             weight=weight,
+            colour_name=colour_name,
             variant_stock=variant_stock,
             variant_status=variant_status,
             colour_code=colour_code
@@ -306,37 +304,31 @@ def edit_variant(request, variant_id):
     variant_images = Product_variant_images.objects.filter(product_variant=variant)
 
     if request.method == 'POST':
-        # gemstone = request.POST.get('variant_gemstone')
+        weight = request.POST.get('variant_weight')
         colour_name = request.POST.get('colour_name')
-        colour_code=request.POST.get('colour_code')
-        weight = request.POST.get('weight')
+        colour_code = request.POST.get('colour_code')
         variant_stock = request.POST.get('variant_stock')
         variant_status = request.POST.get('variant_status') == 'on'
 
         stripped_colour_name = colour_name.strip() if colour_name else ''
-        stripped_colour_code=colour_code.strip() if colour_code else ''
-        stripped_weight = weight.strip() if weight else ''
+        stripped_colour_code = colour_code.strip() if colour_code else ''
 
         if not re.match("^[A-Za-z ]+$", stripped_colour_name):
             messages.error(request, 'Color name must contain only letters and spaces.')
             return redirect('edit-variant', variant_id=variant_id)
 
 
-        if not stripped_weight:
-            messages.error(request, 'weight  is required.')
-            return redirect('edit-variant', variant_id=variant_id)
-        
         if not stripped_colour_code:
-            messages.error(request,'Color code is required.')
-            return redirect('edit-varient',variant_id=variant_id)
+            messages.error(request, 'Color code is required.')
+            return redirect('edit-variant', variant_id=variant_id)
 
         if Product_Variant.objects.filter(product=variant.product, colour_name=stripped_colour_name).exclude(id=variant_id).exists():
             messages.error(request, 'A variant with this color name already exists.')
             return redirect('edit-variant', variant_id=variant_id)
 
-        # if Product_Variant.objects.filter(product=variant.product, weight=stripped_weight).exclude(id=variant_id).exists():
-        #     messages.error(request, 'A variant with this weight already exists.')
-        #     return redirect('edit-variant', variant_id=variant_id)
+        if Product_Variant.objects.filter(product=variant.product, colour_code=stripped_colour_code).exclude(id=variant_id).exists():
+            messages.error(request, 'A variant with this color code already exists.')
+            return redirect('edit-variant', variant_id=variant_id)
 
         try:
             variant_stock = int(variant_stock)
@@ -351,18 +343,14 @@ def edit_variant(request, variant_id):
         if not stripped_colour_name:
             messages.error(request, 'Color name is required.')
             return redirect('edit-variant', variant_id=variant_id)
-        
-        if not stripped_colour_code:
-            messages.error(request,'Color code is required.')
-            return redirect('edit-variant',variant_id=variant_id)
 
-        if not stripped_weight:
-            messages.error(request, 'weight code is required.')
+        if not stripped_colour_code:
+            messages.error(request, 'Color code is required.')
             return redirect('edit-variant', variant_id=variant_id)
 
-        variant.colour_code=colour_code
+        variant.weight = weight
         variant.colour_name = stripped_colour_name
-        variant.weight = stripped_weight
+        variant.colour_code = stripped_colour_code
         variant.variant_stock = variant_stock
         variant.variant_status = variant_status
 
@@ -384,15 +372,12 @@ def edit_variant(request, variant_id):
     return render(request, 'admin_side/edit_varient.html', {'variant': variant, 'variant_images': variant_images})
 
 
-
-
-
 # user side product fuctions
 
 def product_details_user(request, product_id):
     product = get_object_or_404(Products, id=product_id)
     variants = Product_Variant.objects.filter(product=product).prefetch_related('product_variant_images_set')
-
+    star_ratings=product.get_star_rating_distribution()
     # Find related products by category
 
     # related_products = Products.objects.filter(
@@ -418,6 +403,9 @@ def product_details_user(request, product_id):
     for variant in variants:
         variant.image_urls = [image.images.url for image in variant.product_variant_images_set.all()[:5]]    
 
+    reviews = Review.objects.filter(product=product).order_by('-created_at')
+    average_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+
     user_wishlist = []
     if request.user.is_authenticated:
         user_wishlist = Wishlist.objects.filter(user=request.user).values_list('variant_id', flat=True)
@@ -431,6 +419,9 @@ def product_details_user(request, product_id):
         'variants': variants,
         'selected_variant': selected_variant,
         'variant_images': variant_images,
+        'reviews':reviews,
+        'average_rating':average_rating,
+        'star_ratings':star_ratings,
         'user_wishlist':user_wishlist,
         'has_purchased':has_purchased,
         'related_products': related_products,
@@ -524,3 +515,56 @@ def shop_side(request):
         return JsonResponse({'html': html})
     
     return render(request, 'user_side/shop_side.html', context)
+
+def get_variant_weight(request):
+    variant_id = request.GET.get('variant_id')
+    variant = Product_Variant.objects.filter(id=variant_id).first()
+    
+    if not variant:
+        return JsonResponse({'weight': []}, status=404)  
+    
+    # Retrieve weight and stock
+    weight_value = getattr(variant, 'weight', None)
+    stock = getattr(variant, 'variant_stock', 0)
+
+    # Prepare response structure
+    weight = []
+    if weight_value:
+        weight.append({'weight': weight_value, 'stock': stock})
+    
+    return JsonResponse({'weight': weight})
+
+
+
+@login_required(login_url='/login/')
+def add_review(request, product_id):
+    product = get_object_or_404(Products, id=product_id)
+    
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+
+        if not rating or not comment:
+            return HttpResponse("Rating and comment are required.", status=400)
+
+        Review.objects.create(
+            user=request.user,
+            product=product,
+            rating=rating,
+            comment=comment
+        )
+    return redirect('product-details-user', product_id=product.id)
+
+
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+
+    if review.user == request.user:
+        review.delete()
+        messages.success(request, 'Your review has been deleted.')
+    else:
+        messages.error(request, 'You are not authorized to delete this review.')
+
+    return redirect('product-details-user', product_id=review.product.id)
+
+

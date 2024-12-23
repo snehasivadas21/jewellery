@@ -159,7 +159,7 @@
     const imageToCrop = document.getElementById("imageToCrop");
     const cropAndSave = document.getElementById("cropAndSave");
     const cropperModalElement = document.getElementById("cropperModal");
-    var actionUrl = "{% url 'product:add-images' product.id %}";
+    var actionUrl = "{% url 'add-images' product.id %}";
 
     let cropper;
     let currentImage;
