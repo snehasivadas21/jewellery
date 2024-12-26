@@ -10,6 +10,7 @@ from django.db.models import Sum,Count
 from django.utils.timezone import now, timedelta
 from django.utils import timezone
 import json
+from django.views.decorators.cache import cache_page
 from django.db.models.functions import ExtractMonth, ExtractYear,TruncMonth
 
 
@@ -39,7 +40,7 @@ def admin_login(request):
 
     return render(request,'admin_side/admin_login.html')
 
-
+@cache_page(60 * 15)
 @admin_required
 def admin_dashboard(request):
     delivered_orders = OrderMain.objects.filter(order_status='Delivered')
@@ -47,8 +48,8 @@ def admin_dashboard(request):
     total_order_amount = delivered_orders.aggregate(Sum('final_amount'))['final_amount__sum'] or 0
     total_order_count = delivered_orders.count()
 
-    current_month = now().month
-    current_year = now().year
+    current_month = timezone.now().month
+    current_year = timezone.now().year
     monthly_orders = OrderMain.objects.filter(date__year=current_year, date__month=current_month,order_status='Delivered')
     monthly_earnings = monthly_orders.aggregate(Sum('final_amount'))['final_amount__sum'] or 0
     total_discounts_given = monthly_orders.aggregate(Sum('discount_amount'))['discount_amount__sum'] or 0
@@ -139,7 +140,7 @@ def sales_report(request):
 
     return render(request,'admin_side/salesreport.html',{
         'orders':orders,
-        'total_discount':total_orders,
+        'total_discount':total_discount,
         'total_orders':total_orders,
         'total_order_amount':total_order_amount
     })          

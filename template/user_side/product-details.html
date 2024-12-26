@@ -24,6 +24,27 @@
         background-color: #0056b3; /* Button color on hover */
         border-color: #0056b3;
     }
+
+        /* Container to limit the zoom area */
+    .zoom-container {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 300px; /* Adjust to your desired image size */
+        height: auto; /* Adjust to your desired image size */
+    }
+
+    /* Main image styling */
+    .zoom-container img {
+        width: 100%; /* Ensure image fits the container */
+        transition: transform 0.3s ease; /* Smooth zoom effect */
+    }
+
+    /* Zoom effect on hover */
+    .zoom-container:hover img {
+        transform: scale(1.5); /* Adjust zoom level */
+    }
+
     
 </style>
 <main class="main">
@@ -49,12 +70,18 @@
                                     <div class="product-image-slider" id="product-image-slider">
                                         {% if variant_images %}
                                             {% for image in variant_images %}
-                                            <img src="{{ image.images.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            <div class="zoom-container">
+                                                <img src="{{ image.images.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                            </div>
                                             {% endfor %}
                                         {% elif product.thumbnail %}
+                                        <div class="zoom-container">
                                             <img src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                        </div>
                                         {% else %}
+                                        <div class="zoom-container">
                                             <img src="{% static 'images/No_Image-1024.webp' %}" alt="{{ product.product_name }}" class="main-image img-fluid">
+                                        </div>
                                         {% endif %}
                                     </div>
                                     <!-- THUMBNAILS -->
@@ -747,6 +774,8 @@
     });
     
 </script>
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-zoom/1.7.21/jquery.zoom.min.js"></script> -->
 <script>
     $(document).ready(function() {
         // Function to initialize zoom on the currently visible main image
@@ -790,7 +819,5 @@
     });
     
 </script>
-
-
 
 {% endblock %}

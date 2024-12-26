@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +16,7 @@
             <p class="mb-0">Please try again later or contact our support team if the issue persists.</p>
         </div>
         <div class="text-center">
-            <a href="{% url 'checkout' %}" class="btn btn-primary">Go to Checkout</a>
+            <a href="{% url 'order-list' %}" class="btn btn-primary">Go to Retry</a>
         </div>
     </div>
 </body>

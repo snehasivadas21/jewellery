@@ -246,162 +246,92 @@
             </div>
         </section>
         
-        <section class="product-tabs section-padding wow fadeIn animated">
+        <!-- Main Content -->
+    <main class="main">
+        <section class="product-tabs pt-25 pb-20 wow fadeIn animated">
             <div class="container">
-                <div class="tab-header">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        {% for category in categories|slice:":3" %}
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link {% if category.id|stringformat:"s" in selected_categories %}active{% endif %}" 
-                                    id="nav-tab-{{ category.id }}" 
-                                    href="{% url 'shop-side' %}?category={{ category.id }}" 
-                                    role="tab" 
-                                    aria-controls="tab-{{ category.id }}" 
-                                    aria-selected="{% if category.id|stringformat:"s" in selected_categories %}true{% else %}false{% endif %}">
-                                    {{ category.category_name }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                    <a href="{% url 'shop-side' %}" class="view-more d-none d-md-flex">View More<i class="fi-rs-angle-double-small-right"></i></a>
-                </div>
-                
-                
-        
-                <div class="tab-content wow fadeIn animated" id="myTabContent">
-                    <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
-                        <div class="row product-grid-4">
-                            {% for product in products %}
-                            <div class="col-lg-3 col-md-4 col-12 col-sm-6 product-card-wrapper">
-                                <div class="product-cart-wrap">
-                                    <div class="product-img-action-wrap">
-                                    <a href="{% url 'product-details-user' product.id %}">
-                                        <div class="product-img product-img-zoom">
-                                            
-                                                {% if product.thumbnail %}
-                                                    <img class="default-img" src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}">
-                                                {% else %}
-                                                    <img class="default-img" src="{% static 'path/to/default/image.jpg' %}" alt="{{ product.product_name }}">
-                                                {% endif %}
-                                            
-                                        </div>
-                                        </div>
-                                        <div class="product-content-wrap">
-                                            <div class="product-category">
-                                                <p>{{ product.product_category }}</p>
-                                            </div>
-                                            <h2>{{ product.product_name }}</h2>
-                                            <div class="product-discount">
-                                                <span>Discount: {{ product.percentage_discount }}%</span>
-                                            </div>
-                                            <div class="product-price">
-                                                <span class="offer-price">₹{{ product.offer_price }}</span>
-                                                <span class="old-price">₹{{ product.price }}</span>
-                                            </div>
-                                        </div>
-                                    </a>    
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-    
-        <section class="bg-grey-9 section-padding">
-            <div class="container pt-15 pb-25">
-                <div class="heading-tab d-flex">
-                    <div class="heading-tab-left wow fadeIn animated">
-                        <h3 class="section-title mb-20"><span>Monthly</span> Best Sell</h3>
-                    </div>
-                    <div class="heading-tab-right wow fadeIn animated">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            {% for category in categories|slice:":3" %}
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link {% if category.id|stringformat:"s" in selected_categories %}active{% endif %}" 
-                                        id="nav-tab-{{ category.id }}" 
-                                        href="{% url 'shop-side' %}?category={{ category.id }}" 
-                                        role="tab" 
-                                        aria-controls="tab-{{ category.id }}" 
-                                        aria-selected="{% if category.id|stringformat:"s" in selected_categories %}true{% else %}false{% endif %}">
-                                        {{ category.category_name }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
                 <div class="row">
-                    <div class="col-lg-3 d-none d-lg-flex">
-                        <div class="banner-img style-2 wow fadeIn animated">
-                            <img src="{% static 'images/monthlybestsell.jpg' %}" alt="">
-                            <div class="banner-text">
-                                <span>Best Sell</span>
-                                <h4 class="mt-5">buy with <br>Discount</h4>
-                                <a href="{% url 'shop-side' %}" class="text-white">Shop Now <i class="fi-rs-arrow-right"></i></a>
+                    <!-- Sidebar -->
+                    <div class="col-lg-3">
+                        <form id="filter-form">
+                            <!-- Category Widget -->
+                            <div class="widget-category mb-30">
+                                <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
+                                <div class="custome-checkbox">
+                                    {% for category in categories %}
+                                        <div>
+                                            <p>{{ category.name }}</p>
+                                            <input class="form-check-input filter-checkbox" type="checkbox" name="category" id="category{{ category.id }}" value="{{ category.id }}"
+                                                {% if category.id|stringformat:"s" in selected_categories %}checked{% endif %}>
+                                            <label class="form-check-label" for="category{{ category.id }}"><span>{{ category.category_name }}</span></label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Sort By Widget -->
+                            <div class="widget-category mb-30">
+                                <h5 class="section-title style-1 mb-30 wow fadeIn animated">Sort by</h5>
+                                <select name="sort" id="sort-select" class="form-control">
+                                    <option value="popularity" {% if current_sort == 'popularity'%}selected{% endif %}>Popularity</option>
+                                    <option value="price_low_high" {% if current_sort == 'price_low_high' %}selected{% endif %}>Price: Low to High</option>
+                                    <option value="price_high_low" {% if current_sort == 'price_high_low' %}selected{% endif %}>Price: High to Low</option>
+                                    <option value="avg_rating" {% if current_sort == 'avg_rating' %}selected{% endif %}>Average Rating</option>
+                                    <option value="featured" {% if current_sort == 'featured' %}selected{% endif %}>Featured</option>
+                                    <option value="new_arrivals" {% if current_sort == 'new_arrivals' %}selected{% endif %}>New Arrivals</option>
+                                    <option value="name_az" {% if current_sort == 'name_az' %}selected{% endif %}>Name: A to Z</option>
+                                    <option value="name_za" {% if current_sort == 'name_za' %}selected{% endif %}>Name: Z to A</option>
+                                    <option value="inventory" {% if current_sort == 'inventory' %}selected{% endif %}>Inventory</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Product List -->
+                    <div class="col-lg-9">
+                        <div class="tab-content wow fadeIn animated" id="myTabContent">
+                            <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
+                                <div class="row product-grid-4" id="product-list">
+                                    {% include 'user_side/product_list.html' %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-9 col-md-12">
-                        <div class="tab-content wow fadeIn animated" id="myTabContent-1">
-                            <div class="tab-pane fade show active" id="tab-one-1" role="tabpanel" aria-labelledby="tab-one-1">
-                                <div class="carausel-4-columns-cover arrow-center position-relative">
-                                    <div class="slider-arrow slider-arrow-2 carausel-4-columns-arrow" id="carausel-4-columns-arrows"></div>
-                                    <div class="carausel-4-columns carausel-arrow-center" id="carausel-4-columns">
-                                        {% for product in products %}
-                                        <div class="product-cart-wrap uniform-card">
-                                            <div class="product-img-action-wrap uniform-img-wrap">
-                                                <div class="product-img product-img-zoom uniform-img">
-                                                    <a href="{% url 'product-details-user' product.id %}">
-                                                        {% if product.thumbnail %}
-                                                            <img class="default-img" src="{{ product.thumbnail.url }}" alt="{{ product.product_name }}">
-                                                        {% else %}
-                                                            <img class="default-img" src="{% static 'path/to/default/image.jpg' %}" alt="{{ product.product_name }}">
-                                                        {% endif %}
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div class="product-content-wrap uniform-content">
-                                                <div class="product-category">
-                                                    <a href="shop-grid-right.html">{{ product.product_category }}</a>
-                                                </div>
-                                                <h2><a href="{% url 'product-details-user' product.id %}">{{ product.product_name }}</a></h2>
-                                                <div>
-                                                    <span>Discount: {{ product.percentage_discount }}%</span>
-                                                </div>
-                                                <div class="product-price">
-                                                    <span>₹{{ product.offer_price }} </span>
-                                                    <span class="old-price">₹{{ product.price }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    
-                                    
-                                </div>
-                            </div>
-                    </div>
-                    <!--End Col-lg-9-->
                 </div>
             </div>
         </section>
-        {% if messages %}
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                {% for message in messages %}
-                    Swal.fire({
-                        icon: '{{ message.tags }}',
-                        title: '{{ message }}',
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                {% endfor %}
-            });
-        </script>
-    {% endif %}
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        //product filtering and sorting
+        $(document).ready(function() {
+            var isRequestInProgress = false; // Flag to track request status
+    
+            function updateProducts() {
+                if (isRequestInProgress) {
+                    return; // Do nothing if a request is already in progress
+                }
+    
+                isRequestInProgress = true; // Set flag to true to indicate request is in progress
+    
+                $.ajax({
+                    url: '{% url "shop-side" %}',
+                    data: $('#filter-form').serialize(),
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#myTabContent').html(data.html);
+                    },
+                    complete: function() {
+                        isRequestInProgress = false; // Reset flag when the request is complete
+                    }
+                });
+            }
+    
+            $('.filter-checkbox, #sort-select').change(updateProducts);
+            $('.filter-input').on('input', $.debounce(300, updateProducts));
+        });
+    </script>
 {% endblock %}
         
         

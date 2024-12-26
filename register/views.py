@@ -24,13 +24,17 @@ from django.template.loader import render_to_string
 from django.db.models.query_utils import Q
 from django.utils.encoding import force_bytes
 from django.http import JsonResponse
+from category.models import Category
+from product.models import Products
 
 
 def index(request):
     return render(request, 'index.html')
 
 def home_page(request):
-    return render(request,'user_side/index.html')
+    categories=Category.objects.all()
+    products =Products.objects.filter(is_active=True)
+    return render(request,'user_side/index.html',{'categories':categories,'products':products})
 
 def register(request):
     if request.method == 'POST':

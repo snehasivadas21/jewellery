@@ -19,6 +19,8 @@ import uuid
 import razorpay
 from coupon.models import Coupon
 from django.http import JsonResponse, HttpResponse
+import logging
+from django.shortcuts import resolve_url
 
 # Create your views here.
 
@@ -353,6 +355,7 @@ def order_placed(request):
                 order.save()
                 return redirect('order-confirmation', order_id=order.order_id)
             
+            # In the order_placed view, modify the razorpay section:
             elif payment_method == 'razorpay':
                 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
                 razorpay_order = client.order.create({
@@ -360,7 +363,7 @@ def order_placed(request):
                     'currency': 'INR',
                     'payment_capture': '1'
                 })
-                order.payment_id = razorpay_order['id']
+                order.razorpay_order_id = razorpay_order['id']  # Store the Razorpay order ID
                 order.save()
                 return render(request, 'user_side/razorpay_payment.html', {
                     'order': order,
@@ -398,127 +401,96 @@ def order_confirmation(request, order_id):
     return render(request, 'user_side/order_placed.html', {'order': order ,'estimated_delivery_date': estimated_delivery_date})
 
 
-@csrf_exempt
-def razorpay_callback(request):
-    if request.method == "POST":
-        try:
-            # Extract Razorpay data from the POST request
-            payment_id = request.POST.get('razorpay_payment_id', '')
-            razorpay_order_id = request.POST.get('razorpay_order_id', '')
-            signature = request.POST.get('razorpay_signature', '')
+def generic_failure(request):
+    messages.error(request, "Something went wrong with your payment.")
+    return render(request, 'user_side/order_failure.html')
 
-            if not all([payment_id, razorpay_order_id, signature]):
-                messages.error(request, "Incomplete payment details received.")
-                return redirect('order-failure')
-
-            # Initialize Razorpay client
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-
-            # Fetch the associated order and payment attempt
-            order = get_object_or_404(OrderMain, razorpay_order_id=razorpay_order_id)
-            payment_attempt = PaymentAttempt.objects.get(
-                order=order,
-                razorpay_order_id=razorpay_order_id
-            )
-
-            # Verify the payment signature
-            params_dict = {
-                'razorpay_order_id': razorpay_order_id,
-                'razorpay_payment_id': payment_id,
-                'razorpay_signature': signature
-            }
-            client.utility.verify_payment_signature(params_dict)
-
-            # Update payment attempt
-            payment_attempt.payment_id = payment_id
-            payment_attempt.status = 'Success'
-            payment_attempt.save()
-
-            # Update the order status
-            order.payment_id = payment_id
-            order.payment_status = True
-            order.order_status = 'Confirmed'
-            order.save()
-
-            messages.success(request, "Payment successful and order confirmed!")
-            return redirect('order-confirmation', order_id=order.order_id)
-
-        except OrderMain.DoesNotExist:
-            messages.error(request, "Order does not exist.")
-            log_payment_error(razorpay_order_id, "Order not found")
-            return redirect('order-failure')
-
-        except PaymentAttempt.DoesNotExist:
-            messages.error(request, "Payment attempt not found.")
-            log_payment_error(razorpay_order_id, "Payment attempt not found")
-            return redirect('order-failure')
-
-        except razorpay.errors.SignatureVerificationError:
-            # Handle payment verification failure
-            try:
-                order = OrderMain.objects.get(razorpay_order_id=razorpay_order_id)
-                payment_attempt = PaymentAttempt.objects.get(
-                    order=order,
-                    razorpay_order_id=razorpay_order_id
-                )
-                
-                # Update payment attempt
-                payment_attempt.status = 'Failed'
-                payment_attempt.error_message = "Signature verification failed"
-                payment_attempt.save()
-
-                # Update order
-                order.payment_status = False
-                order.order_status = 'Pending'
-                order.save()
-
-                messages.error(request, "Payment verification failed.")
-                return redirect('order-failure', order_id=order.order_id)
-
-            except (OrderMain.DoesNotExist, PaymentAttempt.DoesNotExist):
-                messages.error(request, "Payment verification failed and order not found.")
-                return redirect('order-failure')
-
-        except Exception as e:
-            # Handle unexpected errors
-            try:
-                order = OrderMain.objects.get(razorpay_order_id=razorpay_order_id)
-                payment_attempt = PaymentAttempt.objects.get(
-                    order=order,
-                    razorpay_order_id=razorpay_order_id
-                )
-
-                # Update payment attempt
-                payment_attempt.status = 'Failed'
-                payment_attempt.error_message = str(e)
-                payment_attempt.save()
-
-                # Update order
-                order.payment_status = 'Failed'
-                order.order_status = 'Pending'
-                order.save()
-
-            except (OrderMain.DoesNotExist, PaymentAttempt.DoesNotExist):
-                pass
-
-            messages.error(request, f"An unexpected error occurred: {str(e)}")
-            return redirect('order-failure')
-
-    return JsonResponse({'error': 'Invalid request method.'}, status=400)
+# Create a logger instance for the current module
+logger = logging.getLogger(__name__)
 
 def log_payment_error(razorpay_order_id, error_message):
-    """Helper function to log payment errors"""
+   try:
+       order = OrderMain.objects.get(razorpay_order_id=razorpay_order_id)
+       PaymentAttempt.objects.create(
+           order=order,
+           amount=order.final_amount,
+           razorpay_order_id=razorpay_order_id,
+           status='Failed',
+           error_message=error_message,
+       )
+       order.payment_status = False
+       order.save()
+   except OrderMain.DoesNotExist:
+       logger.error(f"Payment error for unknown order: {razorpay_order_id}, Error: {error_message}")
+
+@csrf_exempt
+def razorpay_callback(request):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid method'}, status=400)
+
+    payment_id = request.POST.get('razorpay_payment_id', '')
+    razorpay_order_id = request.POST.get('razorpay_order_id', '')
+    signature = request.POST.get('razorpay_signature', '')
+    order = None
     try:
         order = OrderMain.objects.get(razorpay_order_id=razorpay_order_id)
+
+        # If required fields are missing
+        if not all([payment_id, razorpay_order_id, signature]):
+            order.order_status = 'Failed'
+            order.save()
+            log_payment_error(razorpay_order_id, "Incomplete payment details")
+            messages.error(request, "Payment failed due to incomplete details.")
+            return redirect('order-failure', order_id=order.order_id)
+
+        # Verify Razorpay Signature
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        client.utility.verify_payment_signature({
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        })
+
+        # Create payment attempt record for successful payment
         PaymentAttempt.objects.create(
             order=order,
             amount=order.final_amount,
+            payment_id=payment_id,
             razorpay_order_id=razorpay_order_id,
-            status='Failed',
-            error_message=error_message
+            status='Success',
         )
+
+        # Update the order
+        order.payment_id = payment_id
+        order.payment_status = True
+        order.order_status = 'Confirmed'
+        order.save()
+
+        messages.success(request, "Payment successful!")
+        return redirect('order-confirmation', order_id=order.order_id)
+
     except OrderMain.DoesNotExist:
-        pass  # Can't log if order doesn't exist
+        log_payment_error(razorpay_order_id, "Order not found")
+        messages.error(request, "Order not found.")
+        return redirect(resolve_url('fallback-order-failure'))  # Redirect to fallback failure page
+
+
+    except razorpay.errors.SignatureVerificationError:
+        if order:
+            order.order_status = 'Failed'
+            order.save()
+        log_payment_error(razorpay_order_id, "Signature verification failed")
+        messages.error(request, "Payment verification failed.")
+        return redirect('order-failure', order_id=order.order_id if order else None)
+
+    except Exception as e:
+        if order:
+           order.order_status = 'Failed'
+           order.save()
+        log_payment_error(razorpay_order_id, str(e))
+        messages.error(request, f"Payment failed due to an error: {str(e)}")
+        return redirect('order-failure', order_id=order.order_id if order else None)
+
 
 
 client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -545,7 +517,7 @@ def retry_payment(request, order_id):
             razorpay_order_id=razorpay_order['id']
         )
 
-        # Update order with new razorpay order id
+        # Update order with new Razorpay order id
         order.razorpay_order_id = razorpay_order['id']
         order.order_status = 'Awaiting payment'
         order.save()
@@ -557,10 +529,11 @@ def retry_payment(request, order_id):
             'razorpay_amount': int(order.total_amount * 100),
             'currency': 'INR',
             'callback_url': request.build_absolute_uri(reverse('razorpay-callback')),
-            'razorpay_callback_url': request.build_absolute_uri(reverse('razorpay-callback'))
         }
         
         return render(request, 'user_side/razorpay_payment.html', context)
 
     except Exception as e:
+        log_payment_error(order.razorpay_order_id if order else 'unknown', str(e))
+        messages.error(request,f"Error retrying payment:{str(e)}")
         return JsonResponse({'error': str(e)}, status=500)

@@ -377,9 +377,9 @@ def download_invoice(request, order_id):
                 data.append([
                     Paragraph(item.variant.product.product_name, normal_style), 
                     str(item.quantity),
-                    f"₹{Decimal(item.price):.2f}",
-                    f"-₹{item_discount_amount:.2f}",
-                    f"₹{item_final_price:.2f}"
+                    f"${Decimal(item.price):.2f}",
+                    f"-${item_discount_amount:.2f}",
+                    f"${item_final_price:.2f}"
                 ])
 
             table = Table(data, colWidths=[None, 1.25 * inch, 1.25 * inch, 1.25 * inch, 1.5 * inch])
@@ -404,10 +404,10 @@ def download_invoice(request, order_id):
             elements.append(Spacer(1, 0.5 * inch))
 
             total_data = [
-                ['Subtotal:', f"₹{subtotal:.2f}"],
-                ['Discount:', f"-₹{total_discount:.2f}"],
+                ['Subtotal:', f"${subtotal:.2f}"],
+                ['Discount:', f"-${total_discount:.2f}"],
                 ['Shipping:', 'Free'],
-                ['Total:', f"₹{subtotal - total_discount:.2f}"]
+                ['Total:', f"${subtotal - total_discount:.2f}"]
             ]
 
             total_table = Table(total_data, colWidths=[4 * inch, 1.5 * inch], hAlign='RIGHT')
