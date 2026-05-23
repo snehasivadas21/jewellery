@@ -74,6 +74,5 @@ develop-eggs/
 *.key
 
 # Migrations (optional; for local dev)
-migrations/
 */migrations/*.pyc
-*/migrations/*.py
+
