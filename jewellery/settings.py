@@ -22,12 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure--1_2!n&@e7lv1@^ua-ua=(@c0$cgbn(xa8eh(hn__%h674xgt_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-# ALLOWED_HOSTS = []
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -94,7 +90,7 @@ WSGI_APPLICATION = 'jewellery.wsgi.application'
 
 AUTH_USER_MODEL='register.User'
 
-APPENDE_SLASH=True
+APPEND_SLASH=True
 
 
 # Database
