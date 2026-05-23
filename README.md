@@ -1,139 +1,233 @@
-Eternagem – Luxury Jewelry E-Commerce Platform
+# 💎 Eternagem - Jewelry E-Commerce Platform
 
-A full-featured jewelry e-commerce web application built using Django, PostgreSQL, HTML, CSS, JavaScript, and Bootstrap.
-The platform provides a seamless shopping experience for users along with a powerful admin management system.
+A fully functional production-level jewelry e-commerce platform built using **Django**, **PostgreSQL**, **HTML**, **CSS**, **JavaScript**, and **Bootstrap**.
 
-🚀 Features
+The platform includes secure authentication, product management, online payments, wallet integration, order management, and a complete admin dashboard.
 
-👤 User Features
-User Registration & Login
-OTP-based Authentication
-Google OAuth Login
-Product Browsing & Filtering
-Product Categories & Sorting
-Cart & Wishlist Management
-Secure Checkout Process
-Razorpay Payment Integration
-Wallet System & Order Retry
-Order Tracking
-Invoice PDF Download
-User Profile Management
+---
 
-🛠️ Admin Features
-Custom Admin Dashboard
-Product Management
-Category Management
-Order Management
-User Management
-Stock & Inventory Control
-Sales Monitoring
+# 🚀 Features
 
-🧰 Tech Stack
-Backend
-Python
-Django
-PostgreSQL
-Frontend
-HTML5
-CSS3
-JavaScript
-Bootstrap
-Third-Party Integrations
-Razorpay Payment Gateway
-Google OAuth Authentication
-SMTP Email Service
-Deployment
-AWS EC2 / GCP VM
-Gunicorn
-Nginx
+## 👤 User Features
 
-📂 Project Structure
+* User Registration & Login
+* OTP Verification System
+* Google Authentication
+* Product Browsing & Filtering
+* Category-Based Product Listing
+* Product Sorting & Search
+* Wishlist Functionality
+* Add to Cart
+* Secure Checkout Flow
+* Razorpay Payment Gateway Integration
+* Wallet & Order Retry System
+* User Profile Management
+* Address Management
+* Order History & Tracking
+* Invoice PDF Download
+* Responsive UI Design
+
+---
+
+## 🛠️ Admin Features
+
+* Admin Dashboard
+* Product Management
+* Category Management
+* Order Management
+* User Management
+* Stock & Inventory Control
+* Coupon Management
+* Sales Monitoring
+* Order Status Updates
+* User Blocking / Unblocking
+
+---
+
+# 🧰 Tech Stack
+
+| Technology       | Usage                    |
+| ---------------- | ------------------------ |
+| Django           | Backend Framework        |
+| PostgreSQL       | Database                 |
+| HTML5            | Frontend Structure       |
+| CSS3             | Styling                  |
+| Bootstrap        | Responsive UI            |
+| JavaScript       | Client-Side Interactions |
+| Razorpay         | Payment Gateway          |
+| Gunicorn         | WSGI Server              |
+| Nginx            | Reverse Proxy Server     |
+| AWS EC2 / GCP VM | Deployment               |
+
+---
+
+# 📂 Project Structure
+
+```bash
 Eternagem/
 │
 ├── register/
-├── product/
+├── customadmin/
 ├── category/
+├── product/
 ├── cart/
 ├── order/
 ├── coupon/
 ├── userprofile/
-├── customadmin/
 │
 ├── static/
 ├── media/
 ├── templates/
 │
-├── jewellery/
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-│
 ├── manage.py
-└── requirements.txt
+├── requirements.txt
+└── README.md
+```
 
+---
 
-Run Migrations
+# ⚙️ Installation & Setup
+
+## 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/snehasivadas21/jewellery.git
+cd jewellery
+```
+
+---
+
+## 2️⃣ Create Virtual Environment
+
+```bash
+python -m venv env
+```
+
+### Activate Environment
+
+#### Windows
+
+```bash
+env\Scripts\activate
+```
+
+#### Linux / Mac
+
+```bash
+source env/bin/activate
+```
+
+---
+
+## 3️⃣ Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 4️⃣ Configure Environment Variables
+
+Create a `.env` file in the project root.
+
+## 5️⃣ Run Migrations
+
+```bash
 python manage.py makemigrations
 python manage.py migrate
+```
 
-Create Superuser
+---
+
+## 6️⃣ Create Superuser
+
+```bash
 python manage.py createsuperuser
+```
 
-Run Server
+---
+
+## 7️⃣ Run Development Server
+
+```bash
 python manage.py runserver
+```
 
-Features:
+Open:
 
-Online Payment
-Payment Verification
-Retry Failed Orders
-Wallet Refund Integration
+```bash
+http://127.0.0.1:8000/
+```
 
-🔐 Authentication System
-Django Authentication
-Email OTP Verification
-Google OAuth Login
-Custom User Model
-Block/Unblock Users
+---
 
-📄 Invoice System
+# 💳 Payment Integration
 
-Users can:
+This project uses **Razorpay** for secure online payments.
 
-Download order invoices in PDF format
-View order history
-Track payment details
-☁️ Deployment
+Features include:
 
-Production deployment configured using:
+* Online Payment Processing
+* Failed Order Retry
+* Wallet Refund Handling
+* Payment Verification
 
-AWS EC2 / GCP VM
-Gunicorn
-Nginx
-PostgreSQL
+---
 
-📚 What I Learned
-Django Models, Views & ORM
-Authentication & Authorization
-Payment Gateway Integration
-Production Deployment
-Nginx & Gunicorn Configuration
-PostgreSQL Database Handling
-Full-Stack Project Architecture
+# 🔐 Authentication System
 
-🔮 Future Improvements
-Product Reviews & Ratings
-Advanced Search
-Email Notifications
-Coupon Recommendation System
-Analytics Dashboard
-Docker Deployment
-👨‍💻 Author
+* Django Custom User Model
+* OTP Verification
+* Google OAuth Login
+* Session-Based Authentication
+* Blocked User Handling
 
-Sneha S
+---
 
-GitHub: https://github.com/snehasivadas21/jewellery.git
-📜 License
+# ☁️ Deployment
 
-This project is developed for educational and portfolio purposes.
+The project is production-ready and can be deployed using:
 
+* AWS EC2
+* Google Cloud Platform (GCP)
+* Nginx
+* Gunicorn
+
+---
+
+# 📚 What I Learned
+
+* Django Architecture & ORM
+* Authentication & Authorization
+* Payment Gateway Integration
+* Wallet & Order Logic
+* PostgreSQL Database Design
+* Static & Media File Handling
+* Production Deployment with Nginx & Gunicorn
+* Cloud Hosting on AWS / GCP
+
+---
+
+# 🔮 Future Enhancements
+
+* Product Reviews & Ratings
+* Advanced Search & Filtering
+* Email Notifications
+* Analytics Dashboard
+* Multi-Vendor Support
+* Docker Deployment
+
+---
+
+# 👨‍💻 Author
+
+### Sneha S
+
+Passionate Full Stack Django Developer focused on building scalable and production-ready web applications.
+
+---
+
+# ⭐ Support
+
+If you like this project, consider giving it a ⭐ on GitHub.
