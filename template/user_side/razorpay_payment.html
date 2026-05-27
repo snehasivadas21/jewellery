@@ -15,11 +15,18 @@
             "name": "ETERNAGEM",
             "description": "Order Payment",
             "order_id": "{{ razorpay_order_id }}",
-            "callback_url": "{% url 'razorpay-callback' %}?order_id={{ razorpay_order_id }}",
+            // "callback_url": "{% url 'razorpay-callback' %}?order_id={{ razorpay_order_id }}",
             "handler": function (response) {
                 var form = document.createElement('form');
                 form.method = 'POST';
-                form.action = "{% url 'razorpay-callback' %}";
+                // form.action = "{% url 'razorpay-callback' %}";
+                form.action = "{{ callback_url }}"; 
+
+                var csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = '{{ csrf_token }}';   // ← add CSRF token
+                form.appendChild(csrfInput);
 
                 var payment_id = document.createElement('input');
                 payment_id.type = 'hidden';
@@ -41,6 +48,11 @@
 
                 document.body.appendChild(form);
                 form.submit();
+            },
+            "modal": {
+                "ondismiss": function() {
+                    window.location.href = "/orders/";  // redirect if user closes modal
+                }
             },
             "theme": {
                 "color": "#F37254"
