@@ -21,7 +21,7 @@ jobs:
 
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/id_ed25519 ssneha2103@35.234.222.121 "
+          ssh -i ~/.ssh/id_rsa ssneha2103@35.234.222.121 "
           cd ~/jewellery &&
           git pull origin master &&
           source ~/env/bin/activate &&
