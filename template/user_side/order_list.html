@@ -125,7 +125,7 @@
                                                 </div>
                                                 <div class="col-md-5">
                                                     <h5 class="mb-0">{{ item.variant.product.product_name }}</h5>
-                                                    <p class="text-muted mb-0">Quantity: {{ item.quantity }}<br>Weight: {{ item.variant.weight }}<br>Price: ₹{{ item.price }}<br>{% if item.status %}{{ item.status  }}{% endif %}</p>
+                                                    <p class="text-muted mb-0">Quantity: {{ item.quantity }}<br>Weight: {{ item.variant.weight }}<br>Colour: {{ item.variant.colour_name }}<br>Price: ₹{{ item.price }}<br>{% if item.status %}{{ item.status  }}{% endif %}</p>
                                                     {% if item.return_status %}
                                                     <p class="text-danger mb-0">Return Status: {{ item.return_status.status }}</p>
                                                     {% endif %}

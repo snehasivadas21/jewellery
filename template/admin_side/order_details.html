@@ -103,7 +103,18 @@
                                             {% endif %}
                                         </a>
                                     </td>
-                                    <td class="align-middle">{{ item.variant.product.product_name }}</td>
+                                    <!-- <td class="align-middle">{{ item.variant.product.product_name }}</td> -->
+                                     <td class="align-middle">
+                                        {{ item.variant.product.product_name }}<br>
+                                        <small class="text-muted">
+                                            {% if item.variant.colour_name %}
+                                                Colour: {{ item.variant.colour_name }}<br>
+                                            {% endif %}
+                                            {% if item.variant.weight %}
+                                                Weight: {{ item.variant.weight }}
+                                            {% endif %}
+                                        </small>
+                                    </td>
                                     <td class="align-middle">₹{{ item.price }}</td>
                                     <td class="align-middle">{{ item.quantity }}</td>
                                     <td class="align-middle text-end">₹{{ item.total_cost }}</td>
