@@ -1,4 +1,4 @@
-name: Django CI/CD
+name: Deploy Django
 
 on:
   push:
@@ -10,25 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H 35.235.241.112 >> ~/.ssh/known_hosts
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 35.235.241.112 >> ~/.ssh/known_hosts
 
-    - name: Deploy to GCP VM
-      run: |
-        ssh ssneha2103@35.235.241.112 << 'EOF'
-          cd ~/jewellery
-          git pull origin master
-          source ~/env/bin/activate
-          pip install -r requirements.txt
-          python manage.py migrate
-          python manage.py collectstatic --noinput
-          sudo systemctl restart gunicorn
+      - name: Deploy
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ssneha2103@35.235.241.112 "
+          cd ~/jewellery &&
+          git pull origin master &&
+          source ~/env/bin/activate &&
+          pip install -r requirements.txt &&
+          python manage.py migrate &&
+          python manage.py collectstatic --noinput &&
+          sudo systemctl restart gunicorn &&
           sudo systemctl restart nginx
-        EOF
+          "
