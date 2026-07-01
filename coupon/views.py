@@ -10,12 +10,32 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 import string
 import random
+from django.db import models 
+from django.core.paginator import Paginator
 
 # Create your views here.
 @admin_required
 def list_coupon(request):
-    coupons=Coupon.objects.all()
-    return render(request,'admin_side/list_coupon.html',{'coupons':coupons})
+    search_query = request.GET.get('search', '')
+    items_per_page = request.GET.get('items_per_page', 20)
+
+    coupons = Coupon.objects.all().order_by('-id')
+    if search_query:
+        coupons = coupons.filter(
+            models.Q(coupon_name__icontains=search_query) |
+            models.Q(coupon_code__icontains=search_query)
+        )
+
+    paginator = Paginator(coupons, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'coupons': page_obj,
+        'search_query': search_query,
+        'items_per_page': items_per_page,
+    }
+    return render(request, 'admin_side/list_coupon.html', context)
 
 @admin_required
 def create_coupon(request):
