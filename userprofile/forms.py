@@ -149,7 +149,7 @@ class UserProfileForm(forms.ModelForm):
        cleaned_phone_number = ''.join(filter(str.isdigit, phone_number))
     
     # Length validation
-       if len(cleaned_phone_number) != 11:
+       if len(cleaned_phone_number) != 10:
         raise ValidationError("Phone number must be exactly 10 digits.")
     
     # Ensure phone number is not all zeros
