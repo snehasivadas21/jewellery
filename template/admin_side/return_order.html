@@ -83,10 +83,10 @@
                                         </span>
                                     </p>
                                     {% if return_request.status == 'Pending' %}
-                                    <form method="post" action="{% url 'update-return-request' return_request.id %}" class="d-inline">
+                                    <form method="post" action="{% url 'update-return-request' return_request.id %}" class="d-inline return-action-form">
                                         {% csrf_token %}
-                                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
-                                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                                        <button type="button" class="btn btn-success btn-sm" onclick="confirmReturnAction(this, 'approve', 'Approve this return request?')">Approve</button>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="confirmReturnAction(this, 'reject', 'Reject this return request?')">Reject</button>
                                     </form>
                                     {% endif %}
                                 </div>
@@ -141,4 +141,29 @@
         </div>
     </div>
 </footer>
+
+<script>
+    function confirmReturnAction(button, action, message) {
+        const form = button.closest('form');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: action === 'approve' ? '#28a745' : '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: action === 'approve' ? 'Yes, approve it!' : 'Yes, reject it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Inject the action value since we no longer use name="action" on the button
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'action';
+                hiddenInput.value = action;
+                form.appendChild(hiddenInput);
+                form.submit();
+            }
+        });
+    }
+</script>
 {% endblock %}
