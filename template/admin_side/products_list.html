@@ -12,59 +12,95 @@
         </div>
     </div>
 
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form method="get" action="{% url 'products-list' %}">
+                        <input type="text" name="search" value="{{ search_query }}" placeholder="Search..." class="form-control">
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="Show all" {% if status_filter == 'Show all' %}selected{% endif %}>Show all</option>
+                        <option value="Active" {% if status_filter == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Inactive" {% if status_filter == 'Inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select name="items_per_page" class="form-select" onchange="this.form.submit()">
+                        <option value="20" {% if items_per_page == '20' %}selected{% endif %}>Show 20</option>
+                        <option value="30" {% if items_per_page == '30' %}selected{% endif %}>Show 30</option>
+                        <option value="40" {% if items_per_page == '40' %}selected{% endif %}>Show 40</option>
+                    </select>
+                </div>
+                <button type="submit" style="display: none;"></button>
+                </form>
+            </div>
+        </header>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                   
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>
-                        {% if product.thumbnail %}
-                        <img src="{{ product.thumbnail.url }}" class="img-fluid rounded" style="width: 50px; height: auto;" alt="{{ product.product_name }}">
-                        {% else %}
-                        <img src="{% static 'placeholder_image.jpg' %}" class="img-fluid rounded" style="width: 50px; height: auto;" alt="Placeholder Image">
-                        {% endif %}
-                    </td>
-                    <td>{{ product.product_name }}</td>
-                    <td>{% if product.product_category %}{{ product.product_category.category_name }}{% else %}No category{% endif %}</td>
-                    {% comment %} <td>{{ product.price }}</td>
-                    <td>{{ product.offer_price }}</td>
-                    <td>{{ product.percentage_discount }}%</td> {% endcomment %}
-                    <td>
-                        <span class="badge rounded-pill {% if product.is_active %}bg-success{% else %}bg-danger{% endif %}">
-                            {{ product.is_active|yesno:"Active,Inactive" }}
-                        </span>
-                    </td>
-                    <td>
-                        <a href="{% url 'product-detail' product.id %}" class="btn btn-primary me-2">More</a>
-                    </td> 
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 
-    <!-- <div class="pagination-area mt-30 mb-50">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                    
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.thumbnail %}
+                            <img src="{{ product.thumbnail.url }}" class="img-fluid rounded" style="width: 50px; height: auto;" alt="{{ product.product_name }}">
+                            {% else %}
+                            <img src="{% static 'placeholder_image.jpg' %}" class="img-fluid rounded" style="width: 50px; height: auto;" alt="Placeholder Image">
+                            {% endif %}
+                        </td>
+                        <td>{{ product.product_name }}</td>
+                        <td>{% if product.product_category %}{{ product.product_category.category_name }}{% else %}No category{% endif %}</td>
+                        {% comment %} <td>{{ product.price }}</td>
+                        <td>{{ product.offer_price }}</td>
+                        <td>{{ product.percentage_discount }}%</td> {% endcomment %}
+                        <td>
+                            <span class="badge rounded-pill {% if product.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ product.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'product-detail' product.id %}" class="btn btn-primary me-2">More</a>
+                        </td> 
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>    
+
+    <div class="pagination-area mt-15 mb-50">
         <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-start">
-                <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                <li class="page-item"><a class="page-link" href="#">02</a></li>
-                <li class="page-item"><a class="page-link" href="#">03</a></li>
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                <li class="page-item"><a class="page-link" href="#">16</a></li>
-                <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}&search={{ search_query }}&status={{ status_filter }}&items_per_page={{ items_per_page }}"><i class="material-icons md-chevron_left"></i></a>
+                </li>
+                {% endif %}
+                {% for num in products.paginator.page_range %}
+                <li class="page-item {% if products.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&search={{ search_query }}&status={{ status_filter }}&items_per_page={{ items_per_page }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}&search={{ search_query }}&status={{ status_filter }}&items_per_page={{ items_per_page }}"><i class="material-icons md-chevron_right"></i></a>
+                </li>
+                {% endif %}
             </ul>
         </nav>
-    </div> -->
+    </div>
 </section>
 
 <script>

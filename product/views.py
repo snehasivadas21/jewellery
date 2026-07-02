@@ -14,12 +14,39 @@ from django.db import DataError
 from decimal import Decimal,InvalidOperation
 from userprofile.models import Wishlist
 import re
-
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 @admin_required
 def products_list(request):
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', 'Show all')
+    items_per_page = request.GET.get('items_per_page', '20')
+
     products = Products.objects.all().order_by('-created_at')
-    return render(request, 'admin_side/products_list.html', {'products':products})
+
+    if search_query:
+        products = products.filter(
+            Q(product_name__icontains=search_query) |
+            Q(product_category__category_name__icontains=search_query)
+        )
+
+    if status_filter == 'Active':
+        products = products.filter(is_active=True)
+    elif status_filter == 'Inactive':
+        products = products.filter(is_active=False)
+
+    paginator = Paginator(products, items_per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'products': page_obj,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'items_per_page': items_per_page,
+    }
+    return render(request, 'admin_side/products_list.html', context)
 
 def product_detail(request,product_id):
     products=get_object_or_404(Products,id=product_id)
