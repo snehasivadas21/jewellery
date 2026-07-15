@@ -7,8 +7,10 @@ cryptography==43.0.3
 defusedxml==0.8.0rc2
 Django==5.1
 django-allauth==65.2.0
+gunicorn==26.0.0
 idna==3.10
 oauthlib==3.2.2
+packaging==26.2
 pillow==11.0.0
 psycopg==3.2.3
 psycopg2==2.9.9
@@ -21,7 +23,6 @@ razorpay==1.4.2
 reportlab==4.2.5
 requests==2.32.3
 requests-oauthlib==2.0.0
-setuptools==75.6.0
 six==1.16.0
 social-auth-app-django==5.4.2
 social-auth-core==4.5.4
