@@ -1,33 +1,28 @@
 name: Deploy Django
-
 on:
   push:
     branches:
       - master
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 35.234.222.121 >> ~/.ssh/known_hosts
-
+          ssh-keyscan -H 98.70.36.59 >> ~/.ssh/known_hosts
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/id_rsa ssneha2103@35.234.222.121 "
+          ssh -i ~/.ssh/id_rsa azureuser@98.70.36.59 "
           cd ~/jewellery &&
           git pull origin master &&
-          source ~/env/bin/activate &&
+          source venv/bin/activate &&
           pip install -r requirements.txt &&
           python manage.py migrate &&
           python manage.py collectstatic --noinput &&
-          sudo systemctl restart gunicorn &&
-          sudo systemctl restart nginx
+          sudo systemctl restart eternagem &&
+          sudo systemctl reload nginx
           "
